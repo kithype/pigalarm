@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f5f1">
+<title>홈트 운동 루틴</title>
+<style>
+:root{
+  --bg:#f5f5f1;
+  --card:#ffffff;
+  --text:#111111;
+  --muted:#74746e;
+  --line:#deded7;
+  --soft:#ecece6;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+body{padding-bottom:48px}
+button{font:inherit}
+main{max-width:720px;margin:0 auto;padding:22px 12px 48px}
+
+.eyebrow{font-size:11px;letter-spacing:.14em;color:var(--muted);margin:2px 2px 8px}
+h1{font-size:27px;line-height:1.15;margin:0 2px 8px;font-weight:800;letter-spacing:-.03em}
+.intro{font-size:13px;line-height:1.65;color:var(--muted);margin:0 2px 16px}
+
+.topbox{
+  background:#111;color:#fff;border-radius:16px;padding:14px 15px;margin-bottom:16px
+}
+.topbox .title{font-size:13px;font-weight:800;margin-bottom:5px}
+.topbox .copy{font-size:12px;line-height:1.6;opacity:.78}
+.soundtest{
+  margin-top:10px;border:0;border-radius:10px;padding:9px 11px;background:#fff;color:#111;font-size:12px;font-weight:750
+}
+
+.progressWrap{margin:0 2px 18px}
+.progressText{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:7px}
+.progress{height:7px;background:#dddcd5;border-radius:999px;overflow:hidden}
+.progressBar{height:100%;width:0;background:#111;transition:width .2s ease}
+
+.cards{display:flex;flex-direction:column;gap:12px}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px
+}
+.head{display:flex;gap:11px;align-items:flex-start}
+.num{
+  width:28px;height:28px;flex:none;border-radius:9px;background:#111;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800
+}
+.name{font-size:17px;font-weight:800;line-height:1.35;margin-top:1px}
+.target{font-size:13px;color:var(--muted);margin-top:2px}
+.desc{font-size:14px;line-height:1.72;color:#373733;margin:12px 0 0 39px}
+
+.control{
+  margin:14px 0 0 39px;background:var(--soft);border-radius:14px;padding:12px
+}
+.guide{
+  background:#fff;border:1px solid #d9d9d2;border-radius:12px;
+  min-height:82px;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:10px
+}
+.phase{font-size:20px;font-weight:850;letter-spacing:-.02em}
+.sub{font-size:12px;color:var(--muted);margin-top:5px}
+.options{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.opt{
+  border:1px solid #d5d5ce;background:#fff;border-radius:9px;padding:8px 10px;
+  font-size:12px;font-weight:750;color:#111
+}
+.opt.active{background:#111;color:#fff;border-color:#111}
+
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.btn{
+  border:1px solid #d5d5ce;background:#fff;color:#111;border-radius:10px;
+  padding:10px 12px;font-size:13px;font-weight:760
+}
+.btn.primary{background:#111;color:#fff;border-color:#111}
+.timer{margin-left:auto;font-variant-numeric:tabular-nums;font-size:20px;font-weight:850}
+
+.sets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.set{
+  border:1px solid #d5d5ce;background:#fff;border-radius:10px;height:42px;
+  font-size:13px;font-weight:760;color:#111
+}
+.set.done{background:#111;color:#fff;border-color:#111}
+.status{font-size:12px;color:var(--muted);margin-top:8px;min-height:18px;line-height:1.5}
+
+.restbox{
+  margin-top:16px;background:#ecece6;border-radius:15px;padding:14px
+}
+.restrow{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.resttitle{font-size:13px;font-weight:800}
+.restopts{display:flex;gap:7px}
+.restopts button{
+  border:1px solid #d3d3cc;background:#fff;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:750
+}
+.restopts button.active{background:#111;color:#fff;border-color:#111}
+
+.footer{margin-top:16px;font-size:12px;line-height:1.7;color:var(--muted);padding:0 2px}
+
+@media(max-width:430px){
+  main{padding:19px 12px 42px}
+  h1{font-size:25px}
+  .desc,.control{margin-left:0}
+  .timer{width:100%;margin-left:0}
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">HOME WORKOUT</div>
+  <h1>15-20분 홈트 루틴</h1>
+  <p class="intro">운동별로 1세트씩 진행하고, 완료되면 자동으로 휴식 타이머가 시작됩니다. 화면을 계속 보지 않아도 되도록 동작 박자와 종료를 소리로 알려줍니다.</p>
+
+  <div class="topbox">
+    <div class="title">소리 안내</div>
+    <div class="copy">운동 시작 후 1초마다 짧은 소리가 납니다. 동작 전환은 다른 높이의 소리, 세트 종료와 휴식 종료는 긴 소리로 구분했습니다.</div>
+    <button class="soundtest" id="soundTest">소리 테스트</button>
+  </div>
+
+  <div class="progressWrap">
+    <div class="progressText"><span>전체 진행률</span><span id="progressText">0 / 6 운동</span></div>
+    <div class="progress"><div class="progressBar" id="progressBar"></div></div>
+  </div>
+
+  <section class="cards">
+
+    <article class="card" data-id="squat" data-kind="reps" data-default="10">
+      <div class="head">
+        <div class="num">1</div>
+        <div><div class="name">의자 스쿼트</div><div class="target">10-15회 × 2세트</div></div>
+      </div>
+      <div class="desc">의자를 뒤에 두고 서서 엉덩이를 뒤로 빼면서 천천히 앉습니다. 엉덩이가 의자에 살짝 닿으면 다시 일어나세요. 내려갈 때 무릎이 안쪽으로 모이지 않게 하고, 허리를 과하게 숙이지 않습니다.</div>
+      <div class="control">
+        <div class="guide"><div class="phase">준비</div><div class="sub">3초 내려가기 → 1초 올라오기</div></div>
+        <div class="options"><button class="opt active" data-value="10">10회</button><button class="opt" data-value="15">15회</button></div>
+        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:00</span></div>
+        <div class="sets"><button class="set">1세트</button><button class="set">2세트</button></div>
+        <div class="status">설명에 맞춘 박자로 자동 진행됩니다.</div>
+      </div>
+    </article>
+
+    <article class="card" data-id="bridge" data-kind="reps" data-default="15">
+      <div class="head">
+        <div class="num">2</div>
+        <div><div class="name">글루트 브릿지</div><div class="target">15회 × 2세트</div></div>
+      </div>
+      <div class="desc">바닥에 등을 대고 누워 무릎을 세웁니다. 발바닥을 바닥에 붙인 상태에서 엉덩이를 천천히 들어 올립니다. 가장 높은 지점에서 엉덩이에 힘을 주고 1초 정도 멈춘 뒤 내려옵니다. 허리를 꺾어서 올리지 않는 게 중요합니다.</div>
+      <div class="control">
+        <div class="guide"><div class="phase">준비</div><div class="sub">2초 올리기 → 1초 멈춤 → 2초 내리기</div></div>
+        <div class="options"><button class="opt active" data-value="15">15회</button></div>
+        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:00</span></div>
+        <div class="sets"><button class="set">1세트</button><button class="set">2세트</button></div>
+        <div class="status">위에서 1초 멈추는 박자가 포함됩니다.</div>
+      </div>
+    </article>
+
+    <article class="card" data-id="wallsit" data-kind="time" data-default="20">
+      <div class="head">
+        <div class="num">3</div>
+        <div><div class="name">월싯</div><div class="target">20-30초 × 2세트</div></div>
+      </div>
+      <div class="desc">벽에 등을 붙이고 발을 앞으로 조금 내민 다음, 벽을 타고 천천히 내려갑니다. 허벅지가 버틸 만한 높이에서 그대로 유지하세요. 처음부터 무릎을 90도까지 굽힐 필요 없습니다.</div>
+      <div class="control">
+        <div class="guide"><div class="phase">준비</div><div class="sub">자세 유지 중 매초 틱</div></div>
+        <div class="options"><button class="opt active" data-value="20">20초</button><button class="opt" data-value="30">30초</button></div>
+        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:20</span></div>
+        <div class="sets"><button class="set">1세트</button><button class="set">2세트</button></div>
+        <div class="status">마지막 3초는 다른 소리로 알려줍니다.</div>
+      </div>
+    </article>
+
+    <article class="card" data-id="legraise" data-kind="reps" data-default="8">
+      <div class="head">
+        <div class="num">4</div>
+        <div><div class="name">레그레이즈</div><div class="target">8-12회 × 2세트</div></div>
+      </div>
+      <div class="desc">바닥에 등을 대고 누워 두 다리를 천천히 올렸다가 내립니다. 다리를 내릴 때 허리가 바닥에서 뜨기 직전까지만 내리세요. 허리가 뜬다면 다리를 너무 낮게 내린 겁니다.</div>
+      <div class="control">
+        <div class="guide"><div class="phase">준비</div><div class="sub">2초 올리기 → 3초 천천히 내리기</div></div>
+        <div class="options"><button class="opt active" data-value="8">8회</button><button class="opt" data-value="12">12회</button></div>
+        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:00</span></div>
+        <div class="sets"><button class="set">1세트</button><button class="set">2세트</button></div>
+        <div class="status">허리가 바닥에서 뜨기 직전까지만 내리세요.</div>
+      </div>
+    </article>
+
+    <article class="card" data-id="wallarm" data-kind="reps" data-default="10">
+      <div class="head">
+        <div class="num">5</div>
+        <div><div class="name">벽 기대 팔 올리기</div><div class="target">10-15회 × 2세트</div></div>
+      </div>
+      <div class="desc">벽에 등을 붙이고 팔꿈치를 굽힌 상태에서 팔을 천천히 위로 올렸다가 내립니다. 어깨를 으쓱하지 말고 등과 어깨 뒤쪽이 움직이는 느낌으로 하세요. 손목에 힘을 줄 필요는 없습니다.</div>
+      <div class="control">
+        <div class="guide"><div class="phase">준비</div><div class="sub">2초 올리기 → 2초 내리기</div></div>
+        <div class="options"><button class="opt active" data-value="10">10회</button><button class="opt" data-value="15">15회</button></div>
+        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:00</span></div>
+        <div class="sets"><button class="set">1세트</button><button class="set">2세트</button></div>
+        <div class="status">어깨를 으쓱하지 않고 천천히 움직이세요.</div>
+      </div>
+    </article>
+
+    <article class="card" data-id="lateral" data-kind="reps" data-default="10">
+      <div class="head">
+        <div class="num">6</div>
+        <div><div class="name">사이드 레터럴 레이즈</div><div class="target">10-15회 × 2세트</div></div>
+      </div>
+      <div class="desc">팔을 몸 옆에 두고 양팔을 천천히 옆으로 들어 올립니다. 어깨 높이 정도까지만 올린 후 천천히 내리세요. 팔꿈치는 살짝 굽힌 상태를 유지합니다. 왼쪽 손목 때문에 처음에는 맨손으로 해보고, 통증 없이 가능한 상태에서만 아주 가벼운 무게를 고려하세요.</div>
+      <div class="control">
+        <div class="guide"><div class="phase">준비</div><div class="sub">2초 올리기 → 3초 천천히 내리기</div></div>
+        <div class="options"><button class="opt active" data-value="10">10회</button><button class="opt" data-value="15">15회</button></div>
+        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:00</span></div>
+        <div class="sets"><button class="set">1세트</button><button class="set">2세트</button></div>
+        <div class="status">처음에는 맨손으로 진행하세요.</div>
+      </div>
+    </article>
+
+  </section>
+
+  <div class="restbox">
+    <div class="restrow">
+      <div class="resttitle">세트 사이 휴식</div>
+      <div class="restopts">
+        <button class="active" data-rest="30">30초</button>
+        <button data-rest="60">60초</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">운동 중 통증이 생기거나 왼쪽 손목에 부담이 느껴지면 해당 동작은 바로 중단하세요.</div>
+</main>
+
+<script>
+let audioCtx = null;
+let activeCard = null;
+let restSeconds = 30;
+
+function getAudio(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function tone(freq=700,dur=.06,vol=.08){
+  const ctx=getAudio();
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  osc.type='sine';
+  osc.frequency.value=freq;
+  gain.gain.value=vol;
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
+  osc.stop(ctx.currentTime+dur);
+}
+function tick(){tone(620,.05,.05)}
+function turn(){tone(950,.08,.08)}
+function rep(){tone(1120,.09,.085)}
+function warn(){tone(980,.08,.09)}
+function startSound(){tone(650,.07,.07);setTimeout(()=>tone(900,.09,.08),100)}
+function finish(){tone(820,.1,.08);setTimeout(()=>tone(1180,.24,.1),140)}
+function restTick(){tone(420,.04,.03)}
+function fmt(s){return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`}
+
+document.getElementById('soundTest').addEventListener('click',()=>{
+  startSound();
+  setTimeout(tick,450);
+  setTimeout(turn,900);
+  setTimeout(rep,1350);
+  setTimeout(finish,1850);
+});
+
+document.querySelectorAll('.restopts button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.restopts button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    restSeconds=Number(btn.dataset.rest);
+  });
+});
+
+const patterns={
+  squat:[
+    ['천천히 내려가기','tick'],
+    ['천천히 내려가기','tick'],
+    ['천천히 내려가기','tick'],
+    ['일어나기','turn']
+  ],
+  bridge:[
+    ['엉덩이 올리기','tick'],
+    ['엉덩이 올리기','tick'],
+    ['위에서 멈춤','turn'],
+    ['천천히 내리기','tick'],
+    ['천천히 내리기','tick']
+  ],
+  legraise:[
+    ['다리 올리기','tick'],
+    ['다리 올리기','tick'],
+    ['천천히 내리기','turn'],
+    ['천천히 내리기','tick'],
+    ['천천히 내리기','tick']
+  ],
+  wallarm:[
+    ['팔 올리기','tick'],
+    ['팔 올리기','tick'],
+    ['팔 내리기','turn'],
+    ['팔 내리기','tick']
+  ],
+  lateral:[
+    ['팔 올리기','tick'],
+    ['팔 올리기','tick'],
+    ['천천히 내리기','turn'],
+    ['천천히 내리기','tick'],
+    ['천천히 내리기','tick']
+  ]
+};
+
+function updateProgress(){
+  const cards=[...document.querySelectorAll('.card')];
+  const done=cards.filter(card=>[...card.querySelectorAll('.set')].every(b=>b.classList.contains('done'))).length;
+  document.getElementById('progressText').textContent=`${done} / ${cards.length} 운동`;
+  document.getElementById('progressBar').style.width=`${done/cards.length*100}%`;
+}
+function nextSet(card){
+  return [...card.querySelectorAll('.set')].find(b=>!b.classList.contains('done'));
+}
+function doneSets(card){
+  return [...card.querySelectorAll('.set')].filter(b=>b.classList.contains('done')).length;
+}
+function stopCard(card, quiet=false){
+  if(card && card._timer){
+    clearInterval(card._timer);
+    card._timer=null;
+  }
+  if(card && !quiet){
+    card.querySelector('.phase').textContent='정지';
+    card.querySelector('.sub').textContent='세트 시작을 누르면 다시 시작합니다.';
+  }
+  if(activeCard===card) activeCard=null;
+}
+function beginRest(card){
+  let left=restSeconds;
+  const phase=card.querySelector('.phase');
+  const sub=card.querySelector('.sub');
+  const timer=card.querySelector('.timer');
+
+  phase.textContent='휴식';
+  sub.textContent=`${left}초 남음`;
+  timer.textContent=fmt(left);
+
+  card._timer=setInterval(()=>{
+    left--;
+    timer.textContent=fmt(left);
+    sub.textContent=`${left}초 남음`;
+
+    if(left>3) restTick();
+    else if(left>0) warn();
+
+    if(left<=0){
+      clearInterval(card._timer);
+      card._timer=null;
+      finish();
+      if(navigator.vibrate) navigator.vibrate([120,60,180]);
+      phase.textContent='휴식 끝';
+      sub.textContent=doneSets(card)>=2?'이 운동 완료':'다음 세트를 시작하세요.';
+      activeCard=null;
+    }
+  },1000);
+}
+function finishSet(card){
+  const btn=nextSet(card);
+  if(btn) btn.classList.add('done');
+  updateProgress();
+  finish();
+  if(navigator.vibrate) navigator.vibrate([100,60,160]);
+
+  const phase=card.querySelector('.phase');
+  const sub=card.querySelector('.sub');
+  phase.textContent='세트 완료';
+
+  if(doneSets(card)>=2){
+    sub.textContent='이 운동 2세트 완료';
+    activeCard=null;
+  }else{
+    sub.textContent=`${restSeconds}초 휴식 시작`;
+    setTimeout(()=>beginRest(card),600);
+  }
+}
+function selectedValue(card){
+  const active=card.querySelector('.opt.active');
+  return Number(active ? active.dataset.value : card.dataset.default);
+}
+
+document.querySelectorAll('.card').forEach(card=>{
+  card._timer=null;
+
+  card.querySelectorAll('.opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      card.querySelectorAll('.opt').forEach(o=>o.classList.remove('active'));
+      opt.classList.add('active');
+      if(card.dataset.kind==='time'){
+        card.querySelector('.timer').textContent=fmt(Number(opt.dataset.value));
+      }
+    });
+  });
+
+  card.querySelectorAll('.set').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      btn.classList.toggle('done');
+      updateProgress();
+    });
+  });
+
+  card.querySelector('.stop').addEventListener('click',()=>stopCard(card));
+
+  card.querySelector('.start').addEventListener('click',()=>{
+    getAudio();
+
+    if(doneSets(card)>=2){
+      card.querySelector('.phase').textContent='완료';
+      card.querySelector('.sub').textContent='이미 2세트를 완료했습니다.';
+      return;
+    }
+
+    if(activeCard && activeCard!==card) stopCard(activeCard,true);
+    stopCard(card,true);
+    activeCard=card;
+    startSound();
+
+    const phase=card.querySelector('.phase');
+    const sub=card.querySelector('.sub');
+    const timer=card.querySelector('.timer');
+    const target=selectedValue(card);
+
+    if(card.dataset.kind==='time'){
+      let left=target;
+      phase.textContent='자세 유지';
+      sub.textContent=`${left}초 남음`;
+      timer.textContent=fmt(left);
+
+      card._timer=setInterval(()=>{
+        left--;
+        timer.textContent=fmt(left);
+        sub.textContent=`${left}초 남음`;
+
+        if(left>3) tick();
+        else if(left>0) warn();
+
+        if(left<=0){
+          clearInterval(card._timer);
+          card._timer=null;
+          finishSet(card);
+        }
+      },1000);
+      return;
+    }
+
+    const pattern=patterns[card.dataset.id];
+    let currentRep=1;
+    let step=0;
+    let elapsed=0;
+
+    phase.textContent=pattern[0][0];
+    sub.textContent=`${currentRep} / ${target}회`;
+    timer.textContent='00:00';
+
+    card._timer=setInterval(()=>{
+      elapsed++;
+      timer.textContent=fmt(elapsed);
+
+      const cue=pattern[step];
+      phase.textContent=cue[0];
+      sub.textContent=`${currentRep} / ${target}회`;
+
+      cue[1]==='turn' ? turn() : tick();
+
+      step++;
+      if(step>=pattern.length){
+        step=0;
+        rep();
+        if(currentRep>=target){
+          clearInterval(card._timer);
+          card._timer=null;
+          finishSet(card);
+          return;
+        }
+        currentRep++;
+      }
+    },1000);
+  });
+});
+
+updateProgress();
+</script>
+</body>
+</html>
