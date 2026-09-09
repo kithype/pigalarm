@@ -104,19 +104,19 @@ h1{font-size:29px;line-height:1.1;margin:0 2px 8px;font-weight:850;letter-spacin
 <main>
   <div class="eyebrow">PIG ALARM / HOME WORKOUT</div>
   <h1>전신 홈트 타이머</h1>
-  <p class="intro">팔과 손목에 체중을 싣지 않고 하체 → 둔근 → 코어 → 유산소를 한 번에 도는 코스입니다. 화면의 동작 큐를 한국어 음성으로도 같이 읽어줍니다.</p>
+  <p class="intro">팔과 손목에 체중을 싣지 않고 하체 → 둔근 → 코어 → 유산소를 한 번에 도는 코스입니다. 화면 동작 큐와 함께 내려갈 때는 낮아지는 음, 올라갈 때는 높아지는 음이 재생됩니다. 말로 동작을 지시하지 않습니다.</p>
 
   <div class="heroPanel">
     <div class="heroRow">
       <div>
-        <div class="heroTitle">음성 코치 ON</div>
-        <div class="heroCopy">“천천히 내려가세요”, “올라오세요”, “3·2·1”처럼 동작 전환과 휴식 종료를 직접 말해줍니다. 기기 내 한국어 음성을 사용합니다.</div>
+        <div class="heroTitle">뮤직 코치 ON</div>
+        <div class="heroCopy">내려가기 = 하행 아르페지오 · 올라오기 = 상행 아르페지오 · 멈춤 = 잔잔한 화음. 음성 안내 없이 음악의 방향만 따라 움직이면 됩니다.</div>
       </div>
     </div>
     <div class="heroActions">
       <button class="heroBtn" id="courseStart">전체 코스 시작</button>
-      <button class="heroBtn dark active" id="voiceToggle">음성 ON</button>
-      <button class="heroBtn dark" id="voiceTest">음성 테스트</button>
+      <button class="heroBtn dark active" id="musicToggle">음악 ON</button>
+      <button class="heroBtn dark" id="musicTest">음악 테스트</button>
       <button class="heroBtn dark" id="resetAll">전체 초기화</button>
     </div>
   </div>
@@ -189,7 +189,7 @@ h1{font-size:29px;line-height:1.1;margin:0 2px 8px;font-weight:850;letter-spacin
       <div class="head"><div class="num">5</div><div><div class="name">월싯</div><div class="target">45-60초 × 2세트</div><div class="tags"><span class="tag">허벅지</span><span class="tag">엉덩이</span><span class="tag">버티기</span></div></div></div>
       <div class="desc">벽에 등을 기대고 무릎을 편한 각도로 굽혀 버팁니다. 팔은 허벅지 위에 기대지 말고 몸 옆이나 가볍게 배 앞에 둡니다.</div>
       <div class="control">
-        <div class="guide"><div class="phase">준비</div><div class="sub">자세 유지 → 마지막 3초 음성 카운트</div></div>
+        <div class="guide"><div class="phase">준비</div><div class="sub">자세 유지 → 마지막 3초 차임</div></div>
         <div class="options"><button class="opt active" data-value="45">45초</button><button class="opt" data-value="60">60초</button></div>
         <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:45</span></div>
         <div class="sets" style="--set-count:2"><button class="set">1세트</button><button class="set">2세트</button></div>
@@ -201,7 +201,7 @@ h1{font-size:29px;line-height:1.1;margin:0 2px 8px;font-weight:850;letter-spacin
       <div class="head"><div class="num">6</div><div><div class="name">스탠딩 니업</div><div class="target">40-50초 × 3세트</div><div class="tags"><span class="tag">유산소</span><span class="tag">복부</span><span class="tag">하체</span></div></div></div>
       <div class="desc">제자리에서 무릎을 배꼽 쪽으로 번갈아 끌어올립니다. 팔은 흔들지 않아도 됩니다. 상체를 세우고 배에 힘을 주면서 리듬을 유지하세요.</div>
       <div class="control">
-        <div class="guide"><div class="phase">준비</div><div class="sub">좌우 빠르게 교대 → 마지막 3초 음성 카운트</div></div>
+        <div class="guide"><div class="phase">준비</div><div class="sub">좌우 빠르게 교대 → 마지막 3초 차임</div></div>
         <div class="options"><button class="opt active" data-value="40">40초</button><button class="opt" data-value="50">50초</button></div>
         <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:40</span></div>
         <div class="sets" style="--set-count:3"><button class="set">1세트</button><button class="set">2세트</button><button class="set">3세트</button></div>
@@ -256,7 +256,7 @@ h1{font-size:29px;line-height:1.1;margin:0 2px 8px;font-weight:850;letter-spacin
 let audioCtx=null;
 let activeCard=null;
 let restSeconds=30;
-let voiceEnabled=true;
+let musicEnabled=true;
 let mode='course';
 let selectedSoloId=null;
 
@@ -267,104 +267,131 @@ function getAudio(){
   if(audioCtx.state==='suspended') audioCtx.resume();
   return audioCtx;
 }
-function tone(freq=700,dur=.06,vol=.05){
+
+function stopCue(card){
+  if(!card||!card._audioNodes) return;
+  card._audioNodes.forEach(node=>{try{node.stop()}catch(e){}});
+  card._audioNodes=[];
+}
+
+function note(card,freq,start,dur,vol=.032,type='triangle'){
+  if(!musicEnabled) return;
   try{
     const ctx=getAudio();
     const osc=ctx.createOscillator();
     const gain=ctx.createGain();
-    osc.type='sine';osc.frequency.value=freq;gain.gain.value=vol;
-    osc.connect(gain);gain.connect(ctx.destination);osc.start();
-    gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
-    osc.stop(ctx.currentTime+dur);
+    osc.type=type;
+    osc.frequency.setValueAtTime(freq,start);
+    gain.gain.setValueAtTime(0.0001,start);
+    gain.gain.exponentialRampToValueAtTime(vol,start+Math.min(.08,dur*.18));
+    gain.gain.exponentialRampToValueAtTime(0.0001,start+dur);
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.start(start);osc.stop(start+dur+.03);
+    if(card){card._audioNodes=card._audioNodes||[];card._audioNodes.push(osc)}
   }catch(e){}
 }
-function tick(){tone(560,.04,.025)}
-function turn(){tone(900,.06,.045)}
-function finishTone(){tone(760,.09,.05);setTimeout(()=>tone(1120,.18,.065),120)}
+
+function arpeggio(card,direction,ms){
+  if(!musicEnabled) return;
+  const ctx=getAudio();
+  const dur=Math.max(.35,ms/1000);
+  const up=[261.63,329.63,392.00,523.25];
+  const down=[523.25,392.00,329.63,261.63];
+  const notes=direction==='up'?up:down;
+  const gap=dur/notes.length;
+  notes.forEach((f,i)=>note(card,f,ctx.currentTime+i*gap,Math.min(gap*.95,.8),.030,'triangle'));
+}
+
+function holdChord(card,ms){
+  if(!musicEnabled) return;
+  const ctx=getAudio();
+  const dur=Math.max(.35,ms/1000);
+  note(card,329.63,ctx.currentTime,dur,.017,'sine');
+  note(card,392.00,ctx.currentTime,dur,.014,'sine');
+  note(card,493.88,ctx.currentTime,dur,.011,'sine');
+}
+
+function softBell(card,freq=659.25,dur=.35,vol=.035){
+  if(!musicEnabled) return;
+  const ctx=getAudio();
+  note(card,freq,ctx.currentTime,dur,vol,'sine');
+  note(card,freq*2,ctx.currentTime,dur*.55,vol*.18,'sine');
+}
+
+function finishCadence(card=null){
+  if(!musicEnabled) return;
+  const ctx=getAudio();
+  [392,493.88,659.25].forEach((f,i)=>note(card,f,ctx.currentTime+i*.13,.38,.035,'triangle'));
+}
+
+function countdownChord(card,n){
+  const freqs={3:523.25,2:587.33,1:659.25};
+  softBell(card,freqs[n]||659.25,.28,.04);
+}
+
+function motionCue(card,type,ms){
+  stopCue(card);
+  if(type==='down') arpeggio(card,'down',ms);
+  else if(type==='up') arpeggio(card,'up',ms);
+  else if(type==='hold') holdChord(card,ms);
+  else if(type==='reset') softBell(card,329.63,.18,.015);
+}
+
 function fmt(s){return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`}
-
-let koVoice=null;
-function loadVoices(){
-  if(!('speechSynthesis' in window)) return;
-  const voices=window.speechSynthesis.getVoices();
-  koVoice=voices.find(v=>/^ko[-_]/i.test(v.lang))||voices.find(v=>v.lang&&v.lang.toLowerCase().includes('ko'))||null;
-}
-loadVoices();
-if('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged=loadVoices;
-
-function speak(text,opts={}){
-  if(!voiceEnabled||!text||!('speechSynthesis' in window)) return;
-  try{
-    window.speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang='ko-KR';
-    if(koVoice) u.voice=koVoice;
-    u.rate=opts.rate||0.80;
-    u.pitch=opts.pitch||1;
-    u.volume=.95;
-    window.speechSynthesis.speak(u);
-  }catch(e){}
-}
 
 const patterns={
   squat:[
-    {label:'천천히 내려가기',voice:'천천히 내려가세요.',ms:3200},
-    {label:'아래에서 잠깐 멈춤',voice:'잠깐 멈추세요.',ms:1200,turn:true},
-    {label:'올라오기',voice:'이제 올라오세요.',ms:2200,turn:true},
-    {label:'자세 정리',ms:800}
+    {label:'천천히 내려가기',music:'down',ms:3200},
+    {label:'아래에서 잠깐 멈춤',music:'hold',ms:1200},
+    {label:'올라오기',music:'up',ms:2200},
+    {label:'자세 정리',music:'reset',ms:800}
   ],
   lunge:[
-    {label:'뒤로 한 발, 천천히 내려가기',dynamic:'lungeDown',ms:2500},
-    {label:'아래에서 잠깐 멈춤',voice:'잠깐 멈추세요.',ms:1000,turn:true},
-    {label:'앞발로 밀며 올라오기',voice:'올라오세요.',ms:2000,turn:true},
-    {label:'발 모으고 교대 준비',ms:800}
+    {label:'뒤로 한 발, 천천히 내려가기',music:'down',ms:2500},
+    {label:'아래에서 잠깐 멈춤',music:'hold',ms:1000},
+    {label:'앞발로 밀며 올라오기',music:'up',ms:2000},
+    {label:'발 모으고 교대 준비',music:'reset',ms:800}
   ],
   calf:[
-    {label:'뒤꿈치 천천히 올리기',voice:'뒤꿈치를 천천히 올리세요.',ms:1600},
-    {label:'위에서 멈춤',voice:'위에서 멈추세요.',ms:1500,turn:true},
-    {label:'천천히 내리기',voice:'천천히 내려오세요.',ms:2200,turn:true},
-    {label:'다음 반복 준비',ms:600}
+    {label:'뒤꿈치 천천히 올리기',music:'up',ms:1600},
+    {label:'위에서 멈춤',music:'hold',ms:1500},
+    {label:'천천히 내리기',music:'down',ms:2200},
+    {label:'다음 반복 준비',music:'reset',ms:600}
   ],
   bridge:[
-    {label:'엉덩이 천천히 올리기',voice:'엉덩이를 천천히 올리세요.',ms:2000},
-    {label:'위에서 꽉 조이기',voice:'위에서 꽉 조이세요.',ms:2200,turn:true},
-    {label:'천천히 내려오기',voice:'천천히 내려오세요.',ms:2500,turn:true},
-    {label:'다음 반복 준비',ms:800}
+    {label:'엉덩이 천천히 올리기',music:'up',ms:2000},
+    {label:'위에서 꽉 조이기',music:'hold',ms:2200},
+    {label:'천천히 내려오기',music:'down',ms:2500},
+    {label:'다음 반복 준비',music:'reset',ms:800}
   ],
   legraise:[
-    {label:'다리 천천히 올리기',voice:'다리를 천천히 올리세요.',ms:2200},
-    {label:'위에서 잠깐 멈춤',voice:'잠깐 멈추세요.',ms:1000,turn:true},
-    {label:'허리 붙이고 천천히 내리기',voice:'허리를 붙이고 천천히 내려가세요.',ms:3200,turn:true},
-    {label:'다음 반복 준비',ms:800}
+    {label:'다리 천천히 올리기',music:'up',ms:2200},
+    {label:'위에서 잠깐 멈춤',music:'hold',ms:1000},
+    {label:'허리 붙이고 천천히 내리기',music:'down',ms:3200},
+    {label:'다음 반복 준비',music:'reset',ms:800}
   ]
 };
 
-const setupCues={
-  squat:'발을 어깨너비로 두고, 의자를 뒤에 둔 다음 엉덩이를 살짝 뒤로 빼세요.',
-  lunge:'발을 골반너비로 두고 상체를 세우세요. 첫 동작은 오른발부터 뒤로 보냅니다.',
-  calf:'발을 골반너비로 두고 곧게 서세요. 필요하면 벽이나 의자에 가볍게 기대 균형만 잡으세요.',
-  bridge:'등을 대고 누워 무릎을 세우고, 발바닥을 바닥에 붙이세요.',
-  wallsit:'벽에 등을 붙이고 발을 앞으로 둔 다음, 버틸 수 있는 높이까지 천천히 내려가세요.',
-  kneeup:'편하게 서서 배에 힘을 주고, 팔은 힘을 빼고 몸 옆에 두세요.',
-  legraise:'등을 대고 누워 허리를 바닥에 붙이고, 다리를 편하게 준비하세요.',
-  heeltap:'등을 대고 누워 무릎과 고관절을 90도로 만들고, 허리를 바닥에 붙이세요.'
-};
-
-function setVoiceButton(){
-  const btn=document.getElementById('voiceToggle');
-  btn.textContent=voiceEnabled?'음성 ON':'음성 OFF';
-  btn.classList.toggle('active',voiceEnabled);
+function setMusicButton(){
+  const btn=document.getElementById('musicToggle');
+  btn.textContent=musicEnabled?'음악 ON':'음악 OFF';
+  btn.classList.toggle('active',musicEnabled);
 }
 
-document.getElementById('voiceToggle').addEventListener('click',()=>{
-  voiceEnabled=!voiceEnabled;
-  if(!voiceEnabled&&'speechSynthesis' in window) window.speechSynthesis.cancel();
-  setVoiceButton();
-  if(voiceEnabled) speak('음성 코치를 켰습니다.');
+document.getElementById('musicToggle').addEventListener('click',()=>{
+  musicEnabled=!musicEnabled;
+  setMusicButton();
+  if(!musicEnabled) cards.forEach(stopCue);
+  else softBell(null,659.25,.25,.035);
 });
-document.getElementById('voiceTest').addEventListener('click',()=>{
+
+document.getElementById('musicTest').addEventListener('click',()=>{
   getAudio();
-  speak('음성 테스트입니다. 실제 운동에서는 동작이 끝날 시간을 기다린 뒤 다음 안내가 나옵니다.');
+  const dummy=null;
+  arpeggio(dummy,'down',2600);
+  setTimeout(()=>holdChord(dummy,900),2800);
+  setTimeout(()=>arpeggio(dummy,'up',2200),3900);
+  setTimeout(()=>finishCadence(),6300);
 });
 
 document.querySelectorAll('.restopts button').forEach(btn=>{
@@ -379,8 +406,8 @@ function setCount(card){return card.querySelectorAll('.set').length}
 function doneSets(card){return [...card.querySelectorAll('.set')].filter(b=>b.classList.contains('done')).length}
 function nextSet(card){return [...card.querySelectorAll('.set')].find(b=>!b.classList.contains('done'))}
 function isDone(card){return doneSets(card)>=setCount(card)}
-
 function visibleCards(){return cards.filter(c=>!c.classList.contains('hidden'))}
+
 function updateProgress(){
   const scope=mode==='solo'?visibleCards():cards;
   const done=scope.filter(isDone).length;
@@ -391,16 +418,16 @@ function updateProgress(){
 
 function stopCard(card,quiet=false){
   if(card){
-    ['_timer','_clockTimer','_phaseTimer','_prepTimer'].forEach(k=>{
+    ['_timer','_clockTimer','_phaseTimer','_prepTimer','_rhythmTimer'].forEach(k=>{
       if(card[k]){clearInterval(card[k]);clearTimeout(card[k]);card[k]=null}
     });
+    stopCue(card);
   }
   if(card&&!quiet){
     card.querySelector('.phase').textContent='정지';
     card.querySelector('.sub').textContent='세트 시작을 누르면 다시 시작합니다.';
   }
   if(activeCard===card) activeCard=null;
-  if('speechSynthesis' in window) window.speechSynthesis.cancel();
 }
 
 function nextCourseCard(card){
@@ -416,42 +443,41 @@ function beginRest(card,transition=false){
   const timer=card.querySelector('.timer');
   const next=transition?nextCourseCard(card):null;
 
+  stopCue(card);
   phase.textContent=transition?'다음 운동 준비':'휴식';
   sub.textContent=`${left}초 남음`;
   timer.textContent=fmt(left);
-  speak(transition?`${rest}초 쉬고 다음 운동으로 넘어갑니다.`:`${rest}초 쉬세요.`);
+  softBell(card,392,.32,.022);
 
   card._timer=setInterval(()=>{
     left--;
     timer.textContent=fmt(left);
     sub.textContent=`${left}초 남음`;
-
-    if(left===10) speak('10초 남았습니다.');
-    if(left<=3&&left>0){speak(String(left),{rate:0.88});turn()}
-    else if(left>0&&left%5===0) tick();
+    if(left===10) softBell(card,523.25,.25,.025);
+    if(left<=3&&left>0) countdownChord(card,left);
+    else if(left>0&&left%5===0) softBell(card,329.63,.15,.013);
 
     if(left<=0){
-      clearInterval(card._timer);card._timer=null;finishTone();
+      clearInterval(card._timer);card._timer=null;finishCadence(card);
       if(navigator.vibrate) navigator.vibrate([100,60,150]);
       activeCard=null;
       if(transition&&next){
         phase.textContent='다음 운동';
         sub.textContent=next.dataset.name;
-        speak(`휴식 끝. 다음 운동은 ${next.dataset.name}입니다.`);
         setTimeout(()=>next.scrollIntoView({behavior:'smooth',block:'start'}),500);
       }else{
         phase.textContent='휴식 끝';
         sub.textContent=isDone(card)?'이 운동 완료':'다음 세트를 시작하세요.';
-        speak(isDone(card)?'운동 완료입니다.':'휴식 끝. 다음 세트를 시작하세요.');
       }
     }
   },1000);
 }
 
 function finishSet(card){
+  stopCue(card);
   const btn=nextSet(card);
   if(btn) btn.classList.add('done');
-  updateProgress();finishTone();
+  updateProgress();finishCadence(card);
   if(navigator.vibrate) navigator.vibrate([90,50,140]);
 
   const phase=card.querySelector('.phase');
@@ -466,7 +492,7 @@ function finishSet(card){
     }else{
       sub.textContent=mode==='course'?'전체 코스 완료':'선택 운동 완료';
       activeCard=null;
-      speak(mode==='course'?'전체 코스 완료. 오늘 운동 끝입니다. 수고하셨습니다.':'선택한 운동을 모두 완료했습니다. 수고하셨습니다.');
+      setTimeout(()=>finishCadence(),350);
     }
   }else{
     sub.textContent=`${restSeconds}초 휴식 시작`;
@@ -479,16 +505,8 @@ function selectedValue(card){
   return Number(active?active.dataset.value:card.dataset.default);
 }
 
-function dynamicVoice(card,currentRep,type){
-  if(type==='lungeDown'){
-    const side=currentRep%2===1?'오른쪽':'왼쪽';
-    return `${side} 다리. 천천히 내려가세요.`;
-  }
-  return '';
-}
-
 cards.forEach(card=>{
-  card._timer=null;card._clockTimer=null;card._phaseTimer=null;card._prepTimer=null;
+  card._timer=null;card._clockTimer=null;card._phaseTimer=null;card._prepTimer=null;card._rhythmTimer=null;card._audioNodes=[];
   card.querySelectorAll('.opt').forEach(opt=>{
     opt.addEventListener('click',()=>{
       card.querySelectorAll('.opt').forEach(o=>o.classList.remove('active'));
@@ -525,19 +543,19 @@ function startCard(card){
   phase.textContent='자세 준비';
   sub.textContent=`${thisSet} / ${totalSets}세트 · ${prepSeconds}초 준비`;
   timer.textContent=fmt(prepSeconds);
-  speak(`${card.dataset.name}. ${thisSet}세트입니다. 먼저 자세를 잡으세요. ${setupCues[card.dataset.id]||''}`);
+  softBell(card,392,.28,.025);
 
   let prep=prepSeconds;
   card._prepTimer=setInterval(()=>{
     prep--;
     timer.textContent=fmt(Math.max(prep,0));
     sub.textContent=`${thisSet} / ${totalSets}세트 · ${Math.max(prep,0)}초 준비`;
-    if(prep===3){phase.textContent='3초 후 시작';speak('3',{rate:0.84});turn()}
-    if(prep===2){phase.textContent='2초 후 시작';speak('2',{rate:0.84});turn()}
-    if(prep===1){phase.textContent='1초 후 시작';speak('1',{rate:0.84});turn()}
+    if(prep===3){phase.textContent='3초 후 시작';countdownChord(card,3)}
+    if(prep===2){phase.textContent='2초 후 시작';countdownChord(card,2)}
+    if(prep===1){phase.textContent='1초 후 시작';countdownChord(card,1)}
     if(prep<=0){
       clearInterval(card._prepTimer);card._prepTimer=null;
-      finishTone();
+      finishCadence(card);
       if(kind==='time') runTimed(card,target);
       else runReps(card,target);
     }
@@ -550,15 +568,27 @@ function runTimed(card,target){
   const sub=card.querySelector('.sub');
   const timer=card.querySelector('.timer');
   phase.textContent='시작';sub.textContent=`${left}초 남음`;timer.textContent=fmt(left);
-  speak(card.dataset.start);
+
+  const id=card.dataset.id;
+  let beat=0;
+  const rhythmMs=id==='kneeup'?900:id==='heeltap'?1200:5000;
+  card._rhythmTimer=setInterval(()=>{
+    if(activeCard!==card) return;
+    beat++;
+    if(id==='wallsit') softBell(card,beat%2?329.63:392,.15,.012);
+    else softBell(card,beat%2?440:523.25,.12,.014);
+  },rhythmMs);
 
   card._timer=setInterval(()=>{
     left--;timer.textContent=fmt(left);sub.textContent=`${left}초 남음`;
-    if(left===Math.floor(target/2)) speak('절반 왔습니다. 지금 속도 그대로 유지하세요.');
-    if(left===10) speak('10초 남았습니다.');
-    if(left<=3&&left>0){speak(String(left),{rate:0.84});turn()}
-    else if(left>0&&left%5===0) tick();
-    if(left<=0){clearInterval(card._timer);card._timer=null;finishSet(card)}
+    if(left===Math.floor(target/2)) finishCadence(card);
+    if(left===10) softBell(card,523.25,.25,.025);
+    if(left<=3&&left>0) countdownChord(card,left);
+    if(left<=0){
+      clearInterval(card._timer);card._timer=null;
+      if(card._rhythmTimer){clearInterval(card._rhythmTimer);card._rhythmTimer=null}
+      finishSet(card);
+    }
   },1000);
 }
 
@@ -587,7 +617,7 @@ function runReps(card,target){
     }
     currentRep++;
     step=0;
-    if(currentRep===target) speak('마지막 한 번입니다.');
+    if(currentRep===target) finishCadence(card);
     runPhase();
   }
 
@@ -596,10 +626,7 @@ function runReps(card,target){
     const cue=pattern[step];
     phase.textContent=cue.label;
     sub.textContent=repSub();
-    if(cue.dynamic) speak(dynamicVoice(card,currentRep,cue.dynamic));
-    else if(cue.voice) speak(cue.voice);
-    cue.turn?turn():tick();
-
+    motionCue(card,cue.music,cue.ms);
     card._phaseTimer=setTimeout(()=>{
       step++;
       if(step>=pattern.length) finishRep();
@@ -611,6 +638,7 @@ function runReps(card,target){
   card._clockTimer=setInterval(()=>{elapsed++;timer.textContent=fmt(elapsed)},1000);
   runPhase();
 }
+
 function showCourse(){
   mode='course';selectedSoloId=null;
   cards.forEach(c=>{c.classList.remove('hidden','focused')});
@@ -632,7 +660,7 @@ function showSolo(id){
   document.getElementById('modeSub').textContent='선택 운동만 진행';
   updateProgress();
   setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),80);
-  speak(`${card.dataset.name}만 진행합니다.`);
+  softBell(null,523.25,.25,.025);
 }
 
 const pickGrid=document.getElementById('pickGrid');
@@ -643,17 +671,18 @@ cards.forEach(card=>{
   b.addEventListener('click',()=>showSolo(card.dataset.id));
   pickGrid.appendChild(b);
 });
+
 document.getElementById('showAll').addEventListener('click',()=>{
   showCourse();
   document.getElementById('cards').scrollIntoView({behavior:'smooth',block:'start'});
-  speak('전체 코스로 돌아갑니다.');
+  softBell(null,523.25,.25,.025);
 });
 
 document.getElementById('courseStart').addEventListener('click',()=>{
   showCourse();getAudio();
   const first=cards.find(c=>!isDone(c))||cards[0];
   first.scrollIntoView({behavior:'smooth',block:'start'});
-  speak('팔에 체중을 싣지 않는 전체 코스를 시작합니다. 첫 번째 운동부터 진행하세요.');
+  finishCadence();
 });
 
 document.getElementById('resetAll').addEventListener('click',()=>{
@@ -665,10 +694,10 @@ document.getElementById('resetAll').addEventListener('click',()=>{
     card.querySelector('.timer').textContent=card.dataset.kind==='time'?fmt(selectedValue(card)):'00:00';
   });
   showCourse();
-  speak('전체 기록을 초기화했습니다.');
+  softBell(null,392,.25,.022);
 });
 
-setVoiceButton();
+setMusicButton();
 updateProgress();
 </script>
 </body>
