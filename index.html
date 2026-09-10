@@ -3,690 +3,104 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f5f5f1">
-<title>PIG ALARM — 홈트 타이머</title>
+<meta name="theme-color" content="#f4f4ef">
+<title>PIG ALARM</title>
 <style>
-:root{
-  --bg:#f5f5f1;
-  --card:#fff;
-  --text:#111;
-  --muted:#74746e;
-  --line:#deded7;
-  --soft:#ecece6;
-}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;-webkit-text-size-adjust:100%}
-body{padding-bottom:max(42px,env(safe-area-inset-bottom))}
-button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
-main{max-width:760px;margin:0 auto;padding:22px 12px 48px}
-.eyebrow{font-size:11px;letter-spacing:.14em;color:var(--muted);margin:2px 2px 8px}
-h1{font-size:29px;line-height:1.1;margin:0 2px 8px;font-weight:850;letter-spacing:-.045em}
-.intro{font-size:13px;line-height:1.68;color:var(--muted);margin:0 2px 16px}
-
-.heroPanel{background:#111;color:#fff;border-radius:18px;padding:15px;margin-bottom:16px}
-.heroRow{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
-.heroTitle{font-size:14px;font-weight:850;margin-bottom:5px}
-.heroCopy{font-size:12px;line-height:1.6;opacity:.76;max-width:480px}
-.heroActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
-.heroBtn{border:0;border-radius:10px;padding:10px 12px;background:#fff;color:#111;font-size:12px;font-weight:800}
-.heroBtn.dark{background:#2b2b2b;color:#fff;border:1px solid rgba(255,255,255,.18)}
-.heroBtn.active{background:#fff;color:#111}
-
-.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 2px 15px}
-.summary>div{background:#e9e9e3;border-radius:12px;padding:11px 12px}
-.summary small{display:block;color:var(--muted);font-size:10px;margin-bottom:3px}
-.summary b{font-size:13px;letter-spacing:-.02em}
-.progressWrap{margin:0 2px 18px}
-.progressText{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:7px}
-.progress{height:7px;background:#dddcd5;border-radius:999px;overflow:hidden}
-.progressBar{height:100%;width:0;background:#111;transition:width .2s ease}
-
-.sectionLabel{display:flex;align-items:center;justify-content:space-between;margin:0 2px 10px}
-.sectionLabel b{font-size:13px}
-.sectionLabel span{font-size:11px;color:var(--muted)}
-.cards{display:flex;flex-direction:column;gap:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;scroll-margin-top:12px;transition:opacity .2s ease,transform .2s ease}
-.card.hidden{display:none}
-.card.focused{border-color:#111}
-.head{display:flex;gap:11px;align-items:flex-start}
-.num{width:28px;height:28px;flex:none;border-radius:9px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
-.name{font-size:17px;font-weight:850;line-height:1.35;margin-top:1px}
-.target{font-size:13px;color:var(--muted);margin-top:2px}
-.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
-.tag{font-size:10px;padding:4px 6px;border-radius:999px;background:var(--soft);color:#4c4c47}
-.desc{font-size:13px;line-height:1.72;color:#373733;margin:12px 0 0 39px}
-.control{margin:14px 0 0 39px;background:var(--soft);border-radius:14px;padding:12px}
-.guide{background:#fff;border:1px solid #d9d9d2;border-radius:12px;min-height:86px;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:10px}
-.phase{font-size:20px;font-weight:850;letter-spacing:-.02em}
-.sub{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.45}
-.options{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
-.opt{border:1px solid #d5d5ce;background:#fff;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:750;color:#111}
-.opt.active{background:#111;color:#fff;border-color:#111}
-.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
-.btn{border:1px solid #d5d5ce;background:#fff;color:#111;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:760}
-.btn.primary{background:#111;color:#fff;border-color:#111}
-.timer{margin-left:auto;font-variant-numeric:tabular-nums;font-size:20px;font-weight:850}
-.sets{display:grid;grid-template-columns:repeat(var(--set-count,2),1fr);gap:7px;margin-top:10px}
-.set{border:1px solid #d5d5ce;background:#fff;border-radius:10px;height:42px;font-size:12px;font-weight:760;color:#111;min-width:0}
-.set.done{background:#111;color:#fff;border-color:#111}
-.status{font-size:12px;color:var(--muted);margin-top:8px;min-height:18px;line-height:1.5}
-
-.restbox{margin-top:16px;background:#ecece6;border-radius:15px;padding:14px}
-.restrow{display:flex;gap:8px;align-items:center;justify-content:space-between}
-.resttitle{font-size:13px;font-weight:800}
-.restopts{display:flex;gap:7px}
-.restopts button{border:1px solid #d3d3cc;background:#fff;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:750}
-.restopts button.active{background:#111;color:#fff;border-color:#111}
-
-.picker{margin-top:22px;border-top:1px solid var(--line);padding-top:20px}
-.pickerHead{margin:0 2px 12px}
-.pickerHead b{display:block;font-size:17px;letter-spacing:-.025em;margin-bottom:4px}
-.pickerHead span{font-size:12px;line-height:1.55;color:var(--muted)}
-.pickGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.pick{border:1px solid #d5d5ce;background:#fff;color:#111;border-radius:12px;min-height:48px;padding:10px 11px;text-align:left;font-size:12px;font-weight:780}
-.pick small{display:block;font-size:10px;color:var(--muted);font-weight:600;margin-top:3px}
-.pickAll{width:100%;margin-top:8px;border:0;background:#111;color:#fff;border-radius:12px;padding:12px;font-size:12px;font-weight:800}
-
-.footer{margin-top:16px;font-size:11px;line-height:1.7;color:var(--muted);padding:0 2px}
-
-@media(max-width:520px){
-  main{padding:19px 12px 42px}
-  h1{font-size:26px}
-  .summary{grid-template-columns:1fr 1fr}
-  .summary>div:last-child{grid-column:1/-1}
-  .desc,.control{margin-left:0}
-  .timer{width:100%;margin-left:0}
-  .sets{grid-template-columns:repeat(2,1fr)}
-}
+:root{--bg:#f4f4ef;--card:#fff;--text:#111;--muted:#75756e;--line:#deded6;--soft:#ecece5}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+body{padding-bottom:max(44px,env(safe-area-inset-bottom))}button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+main{max-width:760px;margin:0 auto;padding:20px 12px 48px}.eyebrow{font-size:10px;letter-spacing:.16em;color:var(--muted);margin:2px 2px 8px}
+h1{font-size:30px;line-height:1;margin:0 2px 7px;font-weight:900;letter-spacing:-.055em}.intro{font-size:12px;line-height:1.65;color:var(--muted);margin:0 2px 16px}
+.top{background:#111;color:#fff;border-radius:20px;padding:16px;margin-bottom:12px}.topline{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.daylabel{font-size:10px;opacity:.55;letter-spacing:.1em;margin-bottom:5px}.daytitle{font-size:21px;font-weight:900;letter-spacing:-.035em}.daycopy{font-size:11px;line-height:1.55;opacity:.66;margin-top:5px}
+.badge{background:#fff;color:#111;border-radius:999px;padding:7px 9px;font-size:10px;font-weight:850;white-space:nowrap}.topBtns{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.topBtn{border:1px solid rgba(255,255,255,.18);background:#292929;color:#fff;border-radius:10px;padding:10px 11px;font-size:11px;font-weight:800}.topBtn.primary{background:#fff;color:#111}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}.stat{background:#e9e9e2;border-radius:13px;padding:11px}.stat small{display:block;font-size:9px;color:var(--muted);margin-bottom:3px}.stat b{font-size:13px}
+.attendance{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:15px}.attHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.attHead b{font-size:13px}.attHead span{font-size:10px;color:var(--muted)}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.calDow,.calDay{height:31px;display:flex;align-items:center;justify-content:center;font-size:10px;border-radius:9px}.calDow{height:20px;color:var(--muted)}.calDay{background:var(--soft)}.calDay.empty{background:transparent}.calDay.done{background:#111;color:#fff;font-weight:850}.calDay.today{outline:1px solid #111;outline-offset:-1px}
+.sessionNav{display:flex;gap:7px;overflow-x:auto;padding:0 1px 10px;margin-bottom:4px;scrollbar-width:none}.sessionNav::-webkit-scrollbar{display:none}.sessionBtn{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-size:10px;font-weight:800;color:#555}.sessionBtn.active{background:#111;color:#fff;border-color:#111}.sessionBtn.done:after{content:" ✓"}
+.progressWrap{margin:0 2px 16px}.progressText{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px}.progress{height:7px;border-radius:999px;background:#dddcd5;overflow:hidden}.progressBar{height:100%;width:0;background:#111;transition:width .2s}
+.sectionLabel{display:flex;justify-content:space-between;align-items:center;margin:0 2px 9px}.sectionLabel b{font-size:13px}.sectionLabel span{font-size:10px;color:var(--muted)}
+.cards{display:flex;flex-direction:column;gap:11px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;scroll-margin-top:10px}.head{display:flex;gap:10px}.num{width:27px;height:27px;border-radius:9px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:850;flex:none}
+.name{font-size:16px;font-weight:900;letter-spacing:-.025em}.target{font-size:12px;color:var(--muted);margin-top:2px}.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.tag{background:var(--soft);font-size:9px;color:#555;border-radius:999px;padding:4px 6px}
+.desc{font-size:12px;line-height:1.7;color:#3c3c37;margin:11px 0 0 37px}.control{margin:12px 0 0 37px;background:var(--soft);border-radius:13px;padding:11px}
+.guide{min-height:78px;background:#fff;border:1px solid #d9d9d2;border-radius:11px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:9px}.phase{font-size:19px;font-weight:900}.sub{font-size:11px;color:var(--muted);margin-top:4px}
+.options,.controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;align-items:center}.opt,.btn{border:1px solid #d4d4cd;background:#fff;color:#111;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:800}.opt.active,.btn.primary{background:#111;color:#fff;border-color:#111}
+.timer{margin-left:auto;font-size:18px;font-weight:900;font-variant-numeric:tabular-nums}.sets{display:grid;grid-template-columns:repeat(var(--count,2),1fr);gap:6px;margin-top:8px}.set{height:39px;border:1px solid #d4d4cd;background:#fff;border-radius:9px;font-size:11px;font-weight:800}.set.done{background:#111;color:#fff;border-color:#111}
+.completeBox{margin-top:15px;background:#111;color:#fff;border-radius:17px;padding:14px}.completeBox b{display:block;font-size:14px;margin-bottom:4px}.completeBox p{font-size:11px;line-height:1.55;opacity:.65;margin:0 0 11px}.completeBtn{width:100%;border:0;border-radius:11px;padding:12px;background:#fff;color:#111;font-size:12px;font-weight:900}
+.footer{font-size:10px;line-height:1.65;color:var(--muted);margin:14px 2px 0}
+@media(max-width:520px){main{padding:18px 11px 42px}h1{font-size:27px}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}.desc,.control{margin-left:0}.timer{width:100%;margin-left:0}}
 </style>
 </head>
 <body>
 <main>
-  <div class="eyebrow">PIG ALARM / HOME WORKOUT</div>
-  <h1>전신 홈트 타이머</h1>
-  <p class="intro">팔과 손목에 체중을 싣지 않는 전신 홈트입니다. 움직이는 구간에만 소리가 납니다. 내려갈 때는 낮아지는 음, 올라갈 때는 높아지는 음이 나오고 준비·멈춤·휴식·세트 완료는 무음입니다.</p>
-
-  <div class="heroPanel">
-    <div class="heroRow">
-      <div>
-        <div class="heroTitle">UP / DOWN CUE ON</div>
-        <div class="heroCopy">DOWN = 낮아지는 음 · UP = 높아지는 음. 움직일 때만 소리가 나고 나머지 구간은 전부 무음입니다.</div>
-      </div>
-    </div>
-    <div class="heroActions">
-      <button class="heroBtn" id="courseStart">전체 코스 시작</button>
-      <button class="heroBtn dark active" id="musicToggle">큐 ON</button>
-      <button class="heroBtn dark" id="musicTest">UP/DOWN 테스트</button>
-      <button class="heroBtn dark" id="resetAll">전체 초기화</button>
-    </div>
-  </div>
-
-  <section class="summary">
-    <div><small>총 운동</small><b>9종 코스</b></div>
-    <div><small>예상 시간</small><b>약 30-35분</b></div>
-    <div><small>강도</small><b>중상 · 팔 체중부하 없음</b></div>
-  </section>
-
-  <div class="progressWrap">
-    <div class="progressText"><span id="progressLabel">전체 진행률</span><span id="progressText">0 / 9 운동</span></div>
-    <div class="progress"><div class="progressBar" id="progressBar"></div></div>
-  </div>
-
-  <div class="sectionLabel"><b id="modeTitle">ARM-SAFE FULL BODY</b><span id="modeSub">위에서부터 순서대로</span></div>
-
-  <section class="cards" id="cards">
-
-    
-    <article class="card" data-id="squat" data-kind="reps" data-default="12" data-name="템포 스쿼트" data-start="엉덩이를 뒤로 빼고, 천천히 내려가세요.">
-      <div class="head"><div class="num">1</div><div><div class="name">템포 스쿼트</div><div class="target">12-15회 × 3세트</div><div class="tags"><span class="tag">하체</span><span class="tag">엉덩이</span><span class="tag">코어</span></div></div></div>
-      <div class="desc">발은 어깨너비 정도로 두고 엉덩이를 뒤로 빼며 앉습니다. 무릎은 발끝 방향으로 보내고, 3초 내려간 뒤 바닥에서 튕기지 않고 올라옵니다.</div>
-      <div class="control">
-        <div class="guide"><div class="phase">준비</div><div class="sub">3초 내려가기 → 잠깐 멈춤 → 약 2초 올라오기</div></div>
-        <div class="options"><button class="opt active" data-value="12">12회</button><button class="opt" data-value="15">15회</button></div>
-        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:00</span></div>
-        <div class="sets" style="--set-count:3"><button class="set">1세트</button><button class="set">2세트</button><button class="set">3세트</button></div>
-        <div class="status">속도를 늦춰서 자극을 높입니다.</div>
-      </div>
-    </article>
-
-    <article class="card" data-id="lunge" data-kind="reps" data-default="16" data-name="리버스 런지" data-start="오른발부터 뒤로 보내세요.">
-      <div class="head"><div class="num">2</div><div><div class="name">리버스 런지</div><div class="target">좌우 8-10회씩 × 2세트</div><div class="tags"><span class="tag">하체</span><span class="tag">균형</span><span class="tag">엉덩이</span></div></div></div>
-      <div class="desc">한 발을 뒤로 보내며 양쪽 무릎을 굽혔다가 앞발로 바닥을 밀어 돌아옵니다. 팔은 편하게 몸 옆에 두고 좌우를 번갈아 진행합니다.</div>
-      <div class="control">
-        <div class="guide"><div class="phase">준비</div><div class="sub">약 2.5초 내려가기 → 잠깐 멈춤 → 약 2초 올라오기</div></div>
-        <div class="options"><button class="opt active" data-value="16">좌우 8회</button><button class="opt" data-value="20">좌우 10회</button></div>
-        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:00</span></div>
-        <div class="sets" style="--set-count:2"><button class="set">1세트</button><button class="set">2세트</button></div>
-        <div class="status">앞쪽 무릎이 안쪽으로 무너지지 않게 유지하세요.</div>
-      </div>
-    </article>
-
-    <article class="card" data-id="hinge" data-kind="reps" data-default="15" data-name="굿모닝 힙힌지">
-      <div class="head"><div class="num">3</div><div><div class="name">굿모닝 힙힌지</div><div class="target">15-20회 × 2세트</div><div class="tags"><span class="tag">햄스트링</span><span class="tag">엉덩이</span><span class="tag">등 뒤쪽</span></div></div></div>
-      <div class="desc">손은 허리에 가볍게 두고 무릎을 살짝 굽힌 채 엉덩이를 뒤로 보냅니다. 허리를 구부리는 게 아니라 고관절을 접고, 햄스트링이 당기면 엉덩이를 앞으로 밀며 일어납니다.</div>
-      <div class="control">
-        <div class="guide"><div class="phase">준비</div><div class="sub">약 2.5초 숙이기 → 짧게 멈춤 → 약 2초 일어나기</div></div>
-        <div class="options"><button class="opt active" data-value="15">15회</button><button class="opt" data-value="20">20회</button></div>
-        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:00</span></div>
-        <div class="sets" style="--set-count:2"><button class="set">1세트</button><button class="set">2세트</button></div>
-        <div class="status">하체 앞쪽만 쓰지 않도록 엉덩이·햄스트링을 채우는 구간입니다.</div>
-      </div>
-    </article>
-
-    <article class="card" data-id="bridge" data-kind="reps" data-default="12" data-name="글루트 브리지" data-start="엉덩이를 조이면서 천천히 올리세요.">
-      <div class="head"><div class="num">4</div><div><div class="name">글루트 브리지</div><div class="target">12-15회 × 3세트</div><div class="tags"><span class="tag">엉덩이</span><span class="tag">햄스트링</span><span class="tag">코어</span></div></div></div>
-      <div class="desc">발바닥을 바닥에 붙이고 엉덩이를 들어 올립니다. 위에서 2초 꽉 조인 뒤 허리가 아니라 엉덩이 힘으로 천천히 내려옵니다. 팔은 바닥에 편하게 내려놓기만 합니다.</div>
-      <div class="control">
-        <div class="guide"><div class="phase">준비</div><div class="sub">약 2초 올리기 → 2초 조이기 → 약 2.5초 내리기</div></div>
-        <div class="options"><button class="opt active" data-value="12">12회</button><button class="opt" data-value="15">15회</button></div>
-        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:00</span></div>
-        <div class="sets" style="--set-count:3"><button class="set">1세트</button><button class="set">2세트</button><button class="set">3세트</button></div>
-        <div class="status">팔로 바닥을 밀지 말고 엉덩이 힘으로 올리세요.</div>
-      </div>
-    </article>
-
-    <article class="card" data-id="wallsit" data-kind="time" data-default="40" data-name="월싯" data-start="벽에 등을 붙이고 자세를 잡으세요.">
-      <div class="head"><div class="num">5</div><div><div class="name">월싯</div><div class="target">40-50초 × 2세트</div><div class="tags"><span class="tag">허벅지</span><span class="tag">엉덩이</span><span class="tag">버티기</span></div></div></div>
-      <div class="desc">벽에 등을 기대고 무릎을 편한 각도로 굽혀 버팁니다. 팔은 허벅지 위에 기대지 말고 몸 옆이나 가볍게 배 앞에 둡니다.</div>
-      <div class="control">
-        <div class="guide"><div class="phase">준비</div><div class="sub">자세 유지 · 소리 없음</div></div>
-        <div class="options"><button class="opt active" data-value="40">40초</button><button class="opt" data-value="50">50초</button></div>
-        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:40</span></div>
-        <div class="sets" style="--set-count:2"><button class="set">1세트</button><button class="set">2세트</button></div>
-        <div class="status">무릎이 불편하면 앉는 깊이를 줄이세요.</div>
-      </div>
-    </article>
-
-    <article class="card" data-id="kneeup" data-kind="time" data-default="45" data-name="스탠딩 니업" data-start="팔은 편하게 두고 무릎을 번갈아 올리세요.">
-      <div class="head"><div class="num">6</div><div><div class="name">스탠딩 니업</div><div class="target">45-60초 × 3세트</div><div class="tags"><span class="tag">유산소</span><span class="tag">복부</span><span class="tag">하체</span></div></div></div>
-      <div class="desc">제자리에서 무릎을 배꼽 쪽으로 번갈아 끌어올립니다. 팔은 흔들지 않아도 됩니다. 상체를 세우고 배에 힘을 주면서 리듬을 유지하세요.</div>
-      <div class="control">
-        <div class="guide"><div class="phase">준비</div><div class="sub">무릎 UP / 발 DOWN 리듬</div></div>
-        <div class="options"><button class="opt active" data-value="45">45초</button><button class="opt" data-value="60">60초</button></div>
-        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:45</span></div>
-        <div class="sets" style="--set-count:3"><button class="set">1세트</button><button class="set">2세트</button><button class="set">3세트</button></div>
-        <div class="status">팔을 쓰지 않고도 심박수를 올리는 구간입니다.</div>
-      </div>
-    </article>
-
-    <article class="card" data-id="legraise" data-kind="reps" data-default="10" data-name="레그레이즈" data-start="허리를 바닥에 붙이고 다리를 올리세요.">
-      <div class="head"><div class="num">7</div><div><div class="name">레그레이즈</div><div class="target">10-12회 × 2세트</div><div class="tags"><span class="tag">하복부</span><span class="tag">코어</span></div></div></div>
-      <div class="desc">등을 바닥에 대고 다리를 천천히 올렸다가 내립니다. 허리가 뜨기 직전까지만 내립니다. 허리가 뜨면 무릎을 조금 굽혀 난도를 낮추고, 팔은 몸 옆에 편하게 내려놓습니다.</div>
-      <div class="control">
-        <div class="guide"><div class="phase">준비</div><div class="sub">약 2초 올리기 → 잠깐 멈춤 → 3초 천천히 내리기</div></div>
-        <div class="options"><button class="opt active" data-value="10">10회</button><button class="opt" data-value="12">12회</button></div>
-        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:00</span></div>
-        <div class="sets" style="--set-count:2"><button class="set">1세트</button><button class="set">2세트</button></div>
-        <div class="status">팔로 바닥을 누르지 말고 복부 힘으로 다리를 조절하세요.</div>
-      </div>
-    </article>
-
-    <article class="card" data-id="heeltap" data-kind="time" data-default="40" data-name="90도 힐탭" data-start="허리를 바닥에 붙이고 발을 번갈아 내리세요.">
-      <div class="head"><div class="num">8</div><div><div class="name">90도 힐탭</div><div class="target">40-50초 × 2세트</div><div class="tags"><span class="tag">복부</span><span class="tag">코어</span><span class="tag">마무리</span></div></div></div>
-      <div class="desc">누워서 무릎과 고관절을 90도로 만든 뒤 한쪽 발뒤꿈치씩 바닥 가까이 내렸다가 돌아옵니다. 팔은 몸 옆에 힘 빼고 둡니다.</div>
-      <div class="control">
-        <div class="guide"><div class="phase">준비</div><div class="sub">발 DOWN / 무릎 UP 리듬 · 허리 고정</div></div>
-        <div class="options"><button class="opt active" data-value="40">40초</button><button class="opt" data-value="50">50초</button></div>
-        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">00:40</span></div>
-        <div class="sets" style="--set-count:2"><button class="set">1세트</button><button class="set">2세트</button></div>
-        <div class="status">마지막까지 허리가 뜨지 않는 범위에서 진행하세요.</div>
-      </div>
-    </article>
-
-
-    <article class="card" data-id="bottlecurl" data-kind="reps" data-default="12" data-name="500ml 보틀 컬">
-      <div class="head"><div class="num">9</div><div><div class="name">500ml 보틀 컬</div><div class="target">12-15회 × 2세트</div><div class="tags"><span class="tag">팔</span><span class="tag">500ml</span><span class="tag">선택 가능</span></div></div></div>
-      <div class="desc">500ml 생수병을 가볍게 잡고 팔꿈치를 몸통 옆에 붙인 채 천천히 굽혔다 폅니다. 손목은 꺾지 말고 중립을 유지하세요. 팔에 통증이나 불편함이 생기면 이 운동은 바로 건너뜁니다.</div>
-      <div class="control">
-        <div class="guide"><div class="phase">준비</div><div class="sub">약 2초 올리기 → 짧게 멈춤 → 약 2.5초 내리기</div></div>
-        <div class="options"><button class="opt active" data-value="12">12회</button><button class="opt" data-value="15">15회</button></div>
-        <div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><button class="btn skip">팔운동 건너뛰기</button><span class="timer">00:00</span></div>
-        <div class="sets" style="--set-count:2"><button class="set">1세트</button><button class="set">2세트</button></div>
-        <div class="status">팔에 체중을 싣지 않는 가벼운 보조 운동입니다. 불편하면 생수병 없이 하거나 건너뛰세요.</div>
-      </div>
-    </article>
-
-  </section>
-
-  <div class="restbox">
-    <div class="restrow">
-      <div><div class="resttitle">세트 사이 휴식</div><div style="font-size:10px;color:var(--muted);margin-top:3px">운동 종목 전환은 35초</div></div>
-      <div class="restopts"><button class="active" data-rest="30">30초</button><button data-rest="45">45초</button></div>
-    </div>
-  </div>
-
-  <section class="picker" id="picker">
-    <div class="pickerHead"><b>오늘은 이것만</b><span>전체 코스 말고 특정 운동만 하고 싶으면 아래에서 고르세요. 선택한 운동 카드만 남고 그 운동만 반복할 수 있습니다.</span></div>
-    <div class="pickGrid" id="pickGrid"></div>
-    <button class="pickAll" id="showAll">전체 코스로 돌아가기</button>
-  </section>
-
-  <div class="footer">팔·손목에 체중을 싣는 동작은 제외했습니다. 500ml 보틀 컬은 가벼운 선택 운동이며 팔에 불편함이 있으면 바로 건너뛰세요. 관절 통증이 아닌 근육 피로가 느껴지는 범위에서 진행하고, 통증·어지럼증·호흡 곤란이 생기면 중단하세요.</div>
+<div class="eyebrow">PIG ALARM / HOME WORKOUT</div>
+<h1>운동하자</h1>
+<p class="intro">요일이 아니라 운동한 횟수 기준입니다. 12회차를 돌고 나면 강도와 순서를 살짝 바꿔 다시 이어집니다.</p>
+<section class="top">
+<div class="topline"><div><div class="daylabel">NEXT SESSION</div><div class="daytitle" id="dayTitle"></div><div class="daycopy" id="dayCopy"></div></div><div class="badge" id="durationBadge"></div></div>
+<div class="topBtns"><button class="topBtn primary" id="startSession">운동 시작</button><button class="topBtn" id="cueToggle">UP / DOWN ON</button><button class="topBtn" id="cueTest">큐 테스트</button></div>
+</section>
+<section class="stats"><div class="stat"><small>이번 달</small><b id="monthCount">0회</b></div><div class="stat"><small>총 운동</small><b id="totalCount">0회</b></div><div class="stat"><small>최근 운동</small><b id="lastDate">-</b></div></section>
+<section class="attendance"><div class="attHead"><b>출석</b><span id="calMonth"></span></div><div class="calendar" id="calendar"></div></section>
+<div class="sessionNav" id="sessionNav"></div>
+<div class="progressWrap"><div class="progressText"><span>진행률</span><span id="progressText"></span></div><div class="progress"><div class="progressBar" id="progressBar"></div></div></div>
+<div class="sectionLabel"><b id="sectionTitle"></b><span id="cycleText"></span></div>
+<section class="cards" id="cards"></section>
+<section class="completeBox"><b>오늘 운동 끝</b><p>완료를 누르면 출석이 저장되고 다음 회차로 넘어갑니다.</p><button class="completeBtn" id="completeSession">운동 완료</button></section>
+<div class="footer">팔과 손목에 체중을 싣는 동작은 제외했습니다. 생수병 동작은 500ml 정도만 기준으로 했고, 수술 부위에 날카로운 통증, 붓기, 저림이 생기면 해당 동작은 중단하세요.</div>
 </main>
-
 <script>
-let audioCtx=null;
-let activeCard=null;
-let restSeconds=30;
-let musicEnabled=true;
-let mode='course';
-let selectedSoloId=null;
-
-const cards=[...document.querySelectorAll('.card')];
-
-function getAudio(){
-  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state==='suspended') audioCtx.resume();
-  return audioCtx;
-}
-
-function stopCue(card){
-  if(!card||!card._audioNodes) return;
-  card._audioNodes.forEach(node=>{try{node.stop()}catch(e){}});
-  card._audioNodes=[];
-}
-
-function note(card,freq,start,dur,vol=.032,type='triangle'){
-  if(!musicEnabled) return;
-  try{
-    const ctx=getAudio();
-    const osc=ctx.createOscillator();
-    const gain=ctx.createGain();
-    osc.type=type;
-    osc.frequency.setValueAtTime(freq,start);
-    gain.gain.setValueAtTime(0.0001,start);
-    gain.gain.exponentialRampToValueAtTime(vol,start+Math.min(.08,dur*.18));
-    gain.gain.exponentialRampToValueAtTime(0.0001,start+dur);
-    osc.connect(gain);gain.connect(ctx.destination);
-    osc.start(start);osc.stop(start+dur+.03);
-    if(card){card._audioNodes=card._audioNodes||[];card._audioNodes.push(osc)}
-  }catch(e){}
-}
-
-function arpeggio(card,direction,ms){
-  if(!musicEnabled) return;
-  const ctx=getAudio();
-  const dur=Math.max(.35,ms/1000);
-  const up=[261.63,329.63,392.00,523.25];
-  const down=[523.25,392.00,329.63,261.63];
-  const notes=direction==='up'?up:down;
-  const gap=dur/notes.length;
-  notes.forEach((f,i)=>note(card,f,ctx.currentTime+i*gap,Math.min(gap*.95,.8),.030,'triangle'));
-}
-
-
-function motionCue(card,type,ms){
-  stopCue(card);
-  if(type==='down') arpeggio(card,'down',ms);
-  else if(type==='up') arpeggio(card,'up',ms);
-  // hold / pause / prep are intentionally silent
-}
-
+const BASE_SESSIONS=[{"day":1,"title":"1일차 · 하체 + 가벼운 팔","copy":"오늘 했던 구성 그대로","duration":"20-25분","exercises":[{"id":"squat","name":"템포 스쿼트","target":"10-12회 × 2세트","tags":["하체","엉덩이"],"kind":"reps","values":[10,12],"sets":2,"desc":"발은 어깨너비. 엉덩이를 뒤로 보내며 천천히 앉고 무릎은 발끝 방향을 유지합니다.","pattern":[["내려가기","down",2800],["유지","silent",450],["올라오기","up",1800]]},{"id":"hinge","name":"굿모닝 힙힌지","target":"12-15회 × 2세트","tags":["엉덩이","햄스트링"],"kind":"reps","values":[12,15],"sets":2,"desc":"무릎을 살짝 굽히고 엉덩이를 뒤로 보냅니다. 허리를 접기보다 고관절을 접는 느낌으로 진행합니다.","pattern":[["숙이기","down",2400],["일어나기","up",1800]]},{"id":"wallsit","name":"월싯","target":"30-40초 × 2세트","tags":["허벅지","근지구력"],"kind":"time","values":[30,40],"sets":2,"desc":"벽에 등을 기대고 편한 깊이에서 버팁니다. 무릎이 불편하면 깊이를 줄입니다."},{"id":"kneeup","name":"스탠딩 니업","target":"30-45초 × 2세트","tags":["유산소","코어"],"kind":"time","values":[30,45],"sets":2,"desc":"상체를 세우고 무릎을 번갈아 올립니다. 팔은 편하게 둡니다.","rhythm":700},{"id":"curl","name":"500ml 보틀 컬","target":"10-12회 × 2세트","tags":["팔","500ml"],"kind":"reps","values":[10,12],"sets":2,"desc":"팔꿈치를 몸 옆에 붙이고 생수병을 천천히 올렸다 내립니다. 손목은 꺾지 않습니다.","pattern":[["올리기","up",1800],["내리기","down",2200]]}]},{"day":2,"title":"2일차 · 코어 + 상체","copy":"복부와 가벼운 상체 중심","duration":"18-22분","exercises":[{"id":"heel","name":"90도 힐탭","target":"30-40초 × 2세트","tags":["복부","코어"],"kind":"time","values":[30,40],"sets":2,"desc":"누워서 무릎을 90도로 만들고 한쪽 발뒤꿈치씩 바닥 가까이 내렸다가 돌아옵니다.","rhythm":900},{"id":"sideknee","name":"스탠딩 사이드 니업","target":"좌우 8-10회 × 2세트","tags":["옆구리","코어"],"kind":"reps","values":[16,20],"sets":2,"desc":"한쪽 무릎을 옆으로 들어 올렸다 내립니다. 상체는 크게 기울이지 않습니다.","pattern":[["올리기","up",1200],["내리기","down",1200]]},{"id":"curl2","name":"500ml 보틀 컬","target":"10-12회 × 2세트","tags":["이두","500ml"],"kind":"reps","values":[10,12],"sets":2,"desc":"팔꿈치를 몸통 옆에 고정하고 통증 없는 범위에서 진행합니다.","pattern":[["올리기","up",1800],["내리기","down",2200]]},{"id":"front","name":"보틀 프론트 레이즈","target":"8-10회 × 2세트","tags":["어깨","500ml"],"kind":"reps","values":[8,10],"sets":2,"desc":"생수병을 몸 앞에서 어깨 높이보다 낮게 천천히 올립니다. 불편하면 병 없이 진행합니다.","pattern":[["올리기","up",1700],["내리기","down",2200]]},{"id":"scap","name":"날개뼈 모으기","target":"12-15회 × 2세트","tags":["등","자세"],"kind":"reps","values":[12,15],"sets":2,"desc":"어깨를 으쓱하지 않고 날개뼈를 뒤로 살짝 모았다 풉니다.","pattern":[["모으기","up",1500],["풀기","down",1500]]}]},{"day":3,"title":"3일차 · 엉덩이 + 뒤쪽","copy":"허벅지 앞보다 엉덩이와 햄스트링","duration":"20-25분","exercises":[{"id":"bridge","name":"글루트 브리지","target":"10-12회 × 2세트","tags":["엉덩이","햄스트링"],"kind":"reps","values":[10,12],"sets":2,"desc":"발바닥을 바닥에 두고 엉덩이를 들어 올립니다. 팔은 바닥에 편하게 두기만 합니다.","pattern":[["올리기","up",1900],["유지","silent",700],["내리기","down",2200]]},{"id":"kickback","name":"스탠딩 킥백","target":"좌우 8-10회 × 2세트","tags":["엉덩이","균형"],"kind":"reps","values":[16,20],"sets":2,"desc":"벽에 손을 가볍게 대도 됩니다. 다리를 뒤로 작게 뻗고 허리가 꺾이지 않게 합니다.","pattern":[["뒤로 뻗기","up",1400],["돌아오기","down",1400]]},{"id":"calf","name":"카프 레이즈","target":"15-20회 × 2세트","tags":["종아리"],"kind":"reps","values":[15,20],"sets":2,"desc":"발뒤꿈치를 천천히 들어 올렸다 내립니다. 균형이 불안하면 벽을 가볍게 짚습니다.","pattern":[["올라가기","up",1300],["내려오기","down",1600]]},{"id":"march","name":"제자리 걷기","target":"45-60초 × 2세트","tags":["유산소"],"kind":"time","values":[45,60],"sets":2,"desc":"숨이 너무 차지 않는 속도로 제자리에서 걷습니다.","rhythm":760},{"id":"hinge3","name":"굿모닝 힙힌지","target":"10-12회 × 2세트","tags":["햄스트링","엉덩이"],"kind":"reps","values":[10,12],"sets":2,"desc":"엉덩이를 뒤로 보내며 숙였다가 엉덩이를 앞으로 밀며 일어납니다.","pattern":[["숙이기","down",2300],["일어나기","up",1800]]}]},{"day":4,"title":"4일차 · 가벼운 전신","copy":"조금 덜 힘들게 몸만 움직이기","duration":"15-20분","exercises":[{"id":"chairsquat","name":"의자 스쿼트","target":"10-12회 × 2세트","tags":["하체","가볍게"],"kind":"reps","values":[10,12],"sets":2,"desc":"의자에 엉덩이가 살짝 닿을 정도까지만 앉았다 일어납니다.","pattern":[["내려가기","down",2200],["올라오기","up",1700]]},{"id":"march4","name":"제자리 걷기","target":"45-60초 × 2세트","tags":["유산소"],"kind":"time","values":[45,60],"sets":2,"desc":"팔을 크게 흔들 필요 없이 편하게 걷습니다.","rhythm":820},{"id":"sideleg","name":"스탠딩 사이드 레그","target":"좌우 8-10회 × 2세트","tags":["엉덩이 옆","균형"],"kind":"reps","values":[16,20],"sets":2,"desc":"몸통은 세우고 다리를 옆으로 작게 벌렸다 돌아옵니다.","pattern":[["올리기","up",1400],["내리기","down",1500]]},{"id":"scap4","name":"날개뼈 모으기","target":"10-12회 × 2세트","tags":["등","가볍게"],"kind":"reps","values":[10,12],"sets":2,"desc":"어깨를 내린 상태에서 날개뼈만 살짝 뒤로 모았다 풉니다.","pattern":[["모으기","up",1500],["풀기","down",1500]]}]},{"day":5,"title":"5일차 · 하체 + 코어","copy":"스쿼트 변주와 복부 조합","duration":"20-24분","exercises":[{"id":"sumo","name":"와이드 스쿼트","target":"10-12회 × 2세트","tags":["하체","내전근"],"kind":"reps","values":[10,12],"sets":2,"desc":"발을 어깨보다 넓게 두고 발끝을 살짝 바깥으로 향하게 합니다. 무릎은 발끝 방향으로 움직입니다.","pattern":[["내려가기","down",2500],["올라오기","up",1800]]},{"id":"heel5","name":"90도 힐탭","target":"30-40초 × 2세트","tags":["복부","코어"],"kind":"time","values":[30,40],"sets":2,"desc":"허리가 바닥에서 뜨지 않는 범위에서 발뒤꿈치를 번갈아 내립니다.","rhythm":900},{"id":"wall5","name":"월싯","target":"25-35초 × 2세트","tags":["허벅지"],"kind":"time","values":[25,35],"sets":2,"desc":"벽에 기대고 오늘 가능한 깊이만큼만 내려가 버팁니다."},{"id":"sideknee5","name":"스탠딩 사이드 니업","target":"좌우 8회 × 2세트","tags":["코어","옆구리"],"kind":"reps","values":[16,20],"sets":2,"desc":"무릎을 옆으로 들어 올리고 상체는 최대한 세워둡니다.","pattern":[["올리기","up",1200],["내리기","down",1200]]},{"id":"curl5","name":"500ml 보틀 컬","target":"10회 × 2세트","tags":["팔","500ml"],"kind":"reps","values":[10,12],"sets":2,"desc":"팔꿈치를 몸 옆에 고정하고 천천히 진행합니다.","pattern":[["올리기","up",1700],["내리기","down",2100]]}]},{"day":6,"title":"6일차 · 상체 + 유산소","copy":"팔은 가볍게, 심박은 조금 올리기","duration":"18-22분","exercises":[{"id":"march6","name":"빠른 제자리 걷기","target":"40-50초 × 3세트","tags":["유산소"],"kind":"time","values":[40,50],"sets":3,"desc":"뛰지 않고 발을 빠르게 번갈아 디딥니다. 팔은 편하게 둡니다.","rhythm":600},{"id":"front6","name":"보틀 프론트 레이즈","target":"8회 × 2세트","tags":["어깨","500ml"],"kind":"reps","values":[8,10],"sets":2,"desc":"어깨 높이보다 낮게만 올립니다. 불편하면 빈손으로 진행합니다.","pattern":[["올리기","up",1700],["내리기","down",2100]]},{"id":"scap6","name":"날개뼈 모으기","target":"12회 × 2세트","tags":["등"],"kind":"reps","values":[12,15],"sets":2,"desc":"가슴을 과하게 내밀지 않고 날개뼈만 살짝 모읍니다.","pattern":[["모으기","up",1500],["풀기","down",1500]]},{"id":"curl6","name":"500ml 보틀 컬","target":"10-12회 × 2세트","tags":["팔"],"kind":"reps","values":[10,12],"sets":2,"desc":"손목은 일자로 두고 천천히 올렸다 내립니다.","pattern":[["올리기","up",1800],["내리기","down",2200]]},{"id":"knee6","name":"스탠딩 니업","target":"30-40초 × 2세트","tags":["유산소","코어"],"kind":"time","values":[30,40],"sets":2,"desc":"상체를 세우고 무릎을 번갈아 올립니다.","rhythm":720}]},{"day":7,"title":"7일차 · 엉덩이 + 하체 옆","copy":"엉덩이 뒤와 옆을 다르게 자극","duration":"20-24분","exercises":[{"id":"bridge7","name":"글루트 브리지","target":"12회 × 2세트","tags":["엉덩이"],"kind":"reps","values":[10,12],"sets":2,"desc":"엉덩이를 올리고 위에서 짧게 조였다가 내려옵니다.","pattern":[["올리기","up",1800],["유지","silent",700],["내리기","down",2200]]},{"id":"sideleg7","name":"스탠딩 사이드 레그","target":"좌우 10회 × 2세트","tags":["엉덩이 옆"],"kind":"reps","values":[16,20],"sets":2,"desc":"다리를 옆으로 크게 차지 말고 작은 범위로 정확히 움직입니다.","pattern":[["올리기","up",1400],["내리기","down",1500]]},{"id":"kick7","name":"스탠딩 킥백","target":"좌우 8회 × 2세트","tags":["엉덩이 뒤"],"kind":"reps","values":[16,20],"sets":2,"desc":"다리를 뒤로 뻗을 때 허리가 꺾이지 않게 합니다.","pattern":[["뒤로 뻗기","up",1400],["돌아오기","down",1400]]},{"id":"calf7","name":"카프 레이즈","target":"15회 × 2세트","tags":["종아리"],"kind":"reps","values":[15,20],"sets":2,"desc":"발뒤꿈치를 높이 들었다가 천천히 내려옵니다.","pattern":[["올리기","up",1300],["내리기","down",1600]]},{"id":"walk7","name":"제자리 걷기","target":"45초 × 2세트","tags":["유산소"],"kind":"time","values":[45,60],"sets":2,"desc":"숨을 고르며 가볍게 마무리합니다.","rhythm":800}]},{"day":8,"title":"8일차 · 복부 + 가벼운 하체","copy":"누워서 코어, 서서 가볍게 하체","duration":"18-22분","exercises":[{"id":"heel8","name":"90도 힐탭","target":"30-40초 × 2세트","tags":["복부"],"kind":"time","values":[30,40],"sets":2,"desc":"허리가 바닥에서 뜨지 않는 범위에서 진행합니다.","rhythm":900},{"id":"leg8","name":"레그레이즈 변형","target":"8-10회 × 2세트","tags":["하복부"],"kind":"reps","values":[8,10],"sets":2,"desc":"무릎을 조금 굽혀도 됩니다. 허리가 뜨기 전까지만 다리를 내립니다.","pattern":[["올리기","up",1900],["내리기","down",2600]]},{"id":"chair8","name":"의자 스쿼트","target":"10회 × 2세트","tags":["하체"],"kind":"reps","values":[10,12],"sets":2,"desc":"의자를 기준으로 깊이를 일정하게 맞춥니다.","pattern":[["내려가기","down",2200],["올라오기","up",1700]]},{"id":"sideknee8","name":"스탠딩 사이드 니업","target":"좌우 8회 × 2세트","tags":["옆구리"],"kind":"reps","values":[16,20],"sets":2,"desc":"무릎을 옆으로 올리고 몸통을 크게 접지 않습니다.","pattern":[["올리기","up",1200],["내리기","down",1200]]}]},{"day":9,"title":"9일차 · 상체 + 하체 믹스","copy":"생수병 상체와 하체를 번갈아","duration":"20-24분","exercises":[{"id":"squat9","name":"템포 스쿼트","target":"10회 × 2세트","tags":["하체"],"kind":"reps","values":[10,12],"sets":2,"desc":"천천히 내려가고 올라올 때 무릎이 안쪽으로 모이지 않게 합니다.","pattern":[["내려가기","down",2600],["올라오기","up",1800]]},{"id":"curl9","name":"500ml 보틀 컬","target":"10회 × 2세트","tags":["팔"],"kind":"reps","values":[10,12],"sets":2,"desc":"팔꿈치를 몸 옆에 고정합니다.","pattern":[["올리기","up",1800],["내리기","down",2200]]},{"id":"hinge9","name":"굿모닝 힙힌지","target":"12회 × 2세트","tags":["엉덩이","햄스트링"],"kind":"reps","values":[10,12],"sets":2,"desc":"엉덩이를 뒤로 보내며 숙였다가 일어납니다.","pattern":[["숙이기","down",2300],["일어나기","up",1800]]},{"id":"front9","name":"보틀 프론트 레이즈","target":"8회 × 2세트","tags":["어깨"],"kind":"reps","values":[8,10],"sets":2,"desc":"어깨 높이보다 낮게 올리고 통증이 있으면 빈손으로 합니다.","pattern":[["올리기","up",1700],["내리기","down",2100]]},{"id":"knee9","name":"스탠딩 니업","target":"30초 × 2세트","tags":["유산소","코어"],"kind":"time","values":[30,40],"sets":2,"desc":"마지막에 숨을 조금 올립니다.","rhythm":700}]},{"day":10,"title":"10일차 · 유산소 + 코어","copy":"뛰지 않고 땀내기","duration":"18-22분","exercises":[{"id":"march10","name":"빠른 제자리 걷기","target":"45초 × 3세트","tags":["유산소"],"kind":"time","values":[45,60],"sets":3,"desc":"뛰지 않고 발만 빠르게 교대합니다.","rhythm":580},{"id":"knee10","name":"스탠딩 니업","target":"30-40초 × 2세트","tags":["유산소","코어"],"kind":"time","values":[30,40],"sets":2,"desc":"무릎을 배꼽 쪽으로 번갈아 올립니다.","rhythm":700},{"id":"heel10","name":"90도 힐탭","target":"30초 × 2세트","tags":["복부"],"kind":"time","values":[30,40],"sets":2,"desc":"허리를 바닥에 붙이고 발을 번갈아 내립니다.","rhythm":900},{"id":"side10","name":"스탠딩 사이드 니업","target":"좌우 8회 × 2세트","tags":["옆구리"],"kind":"reps","values":[16,20],"sets":2,"desc":"몸통을 많이 기울이지 않고 무릎을 옆으로 올립니다.","pattern":[["올리기","up",1200],["내리기","down",1200]]}]},{"day":11,"title":"11일차 · 하체 후면 + 종아리","copy":"엉덩이, 햄스트링, 종아리 집중","duration":"20-24분","exercises":[{"id":"hinge11","name":"굿모닝 힙힌지","target":"12-15회 × 2세트","tags":["햄스트링","엉덩이"],"kind":"reps","values":[12,15],"sets":2,"desc":"고관절을 접었다 펴는 느낌으로 움직입니다.","pattern":[["숙이기","down",2400],["일어나기","up",1800]]},{"id":"bridge11","name":"글루트 브리지","target":"10-12회 × 2세트","tags":["엉덩이"],"kind":"reps","values":[10,12],"sets":2,"desc":"엉덩이를 들어 올리고 위에서 짧게 조입니다.","pattern":[["올리기","up",1800],["유지","silent",700],["내리기","down",2200]]},{"id":"kick11","name":"스탠딩 킥백","target":"좌우 8회 × 2세트","tags":["엉덩이 뒤"],"kind":"reps","values":[16,20],"sets":2,"desc":"허리를 꺾지 않고 다리만 뒤로 작게 보냅니다.","pattern":[["뒤로","up",1400],["돌아오기","down",1400]]},{"id":"calf11","name":"카프 레이즈","target":"15-20회 × 2세트","tags":["종아리"],"kind":"reps","values":[15,20],"sets":2,"desc":"발뒤꿈치를 들어 올렸다 천천히 내립니다.","pattern":[["올리기","up",1300],["내리기","down",1600]]},{"id":"walk11","name":"제자리 걷기","target":"45초 × 2세트","tags":["유산소"],"kind":"time","values":[45,60],"sets":2,"desc":"가볍게 걸으며 마무리합니다.","rhythm":800}]},{"day":12,"title":"12일차 · 전신 믹스","copy":"한 바퀴 마무리용 균형 코스","duration":"22-26분","exercises":[{"id":"sumo12","name":"와이드 스쿼트","target":"10회 × 2세트","tags":["하체"],"kind":"reps","values":[10,12],"sets":2,"desc":"발을 조금 넓게 두고 무릎은 발끝 방향으로 움직입니다.","pattern":[["내려가기","down",2500],["올라오기","up",1800]]},{"id":"scap12","name":"날개뼈 모으기","target":"12회 × 2세트","tags":["등"],"kind":"reps","values":[12,15],"sets":2,"desc":"팔은 편하게 두고 날개뼈만 뒤로 모았다 풉니다.","pattern":[["모으기","up",1500],["풀기","down",1500]]},{"id":"bridge12","name":"글루트 브리지","target":"10회 × 2세트","tags":["엉덩이"],"kind":"reps","values":[10,12],"sets":2,"desc":"엉덩이 힘으로 올렸다가 천천히 내려옵니다.","pattern":[["올리기","up",1800],["내리기","down",2200]]},{"id":"curl12","name":"500ml 보틀 컬","target":"10회 × 2세트","tags":["팔"],"kind":"reps","values":[10,12],"sets":2,"desc":"팔꿈치를 고정하고 통증 없는 범위에서만 합니다.","pattern":[["올리기","up",1800],["내리기","down",2200]]},{"id":"heel12","name":"90도 힐탭","target":"30초 × 2세트","tags":["복부"],"kind":"time","values":[30,40],"sets":2,"desc":"허리를 바닥에 붙인 채 발을 번갈아 내립니다.","rhythm":900},{"id":"march12","name":"제자리 걷기","target":"45초 × 2세트","tags":["유산소"],"kind":"time","values":[45,60],"sets":2,"desc":"가볍게 숨을 올리고 마무리합니다.","rhythm":760}]}];
+const STORE='pigalarm_v5',INITIAL_DATE='2026-09-09';
+let state=JSON.parse(localStorage.getItem(STORE)||'null');
+if(!state){state={nextDay:2,attendance:[INITIAL_DATE],completedDays:[1],cue:true,cycle:1,totalSessions:1};localStorage.setItem(STORE,JSON.stringify(state))}
+if(!Array.isArray(state.attendance))state.attendance=[];
+if(!Array.isArray(state.completedDays))state.completedDays=[];
+if(typeof state.nextDay!=='number')state.nextDay=1;
+if(typeof state.cycle!=='number')state.cycle=1;
+if(typeof state.totalSessions!=='number')state.totalSessions=state.attendance.length;
+if(typeof state.cue!=='boolean')state.cue=true;
+let currentDay=Math.min(Math.max(state.nextDay,1),12),activeCard=null,audioCtx=null;
+const save=()=>localStorage.setItem(STORE,JSON.stringify(state));
+function localDateStr(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function fmt(s){return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`}
-
-const patterns={
-  squat:[
-    {label:'천천히 내려가기',music:'down',ms:3000},
-    {label:'아래에서 잠깐 멈춤',music:'silent',ms:800},
-    {label:'올라오기',music:'up',ms:2000}
-  ],
-  lunge:[
-    {label:'뒤로 한 발, 천천히 내려가기',music:'down',ms:2400},
-    {label:'아래에서 잠깐 멈춤',music:'silent',ms:600},
-    {label:'앞발로 밀며 올라오기',music:'up',ms:1800}
-  ],
-  hinge:[
-    {label:'엉덩이를 뒤로 보내며 숙이기',music:'down',ms:2500},
-    {label:'햄스트링 긴장 유지',music:'silent',ms:500},
-    {label:'엉덩이를 앞으로 밀며 일어나기',music:'up',ms:2000}
-  ],
-  bridge:[
-    {label:'엉덩이 천천히 올리기',music:'up',ms:2000},
-    {label:'위에서 꽉 조이기',music:'silent',ms:1500},
-    {label:'천천히 내려오기',music:'down',ms:2300}
-  ],
-  legraise:[
-    {label:'다리 천천히 올리기',music:'up',ms:2000},
-    {label:'위에서 잠깐 멈춤',music:'silent',ms:500},
-    {label:'허리 붙이고 천천히 내리기',music:'down',ms:3000}
-  ],
-  bottlecurl:[
-    {label:'생수병 천천히 올리기',music:'up',ms:2000},
-    {label:'위에서 잠깐 멈춤',music:'silent',ms:500},
-    {label:'생수병 천천히 내리기',music:'down',ms:2500}
-  ]
-};
-
-function setMusicButton(){
-  const btn=document.getElementById('musicToggle');
-  btn.textContent=musicEnabled?'UP/DOWN ON':'UP/DOWN OFF';
-  btn.classList.toggle('active',musicEnabled);
-}
-
-document.getElementById('musicToggle').addEventListener('click',()=>{
-  musicEnabled=!musicEnabled;
-  setMusicButton();
-  if(!musicEnabled) cards.forEach(stopCue);
-});
-
-document.getElementById('musicTest').addEventListener('click',()=>{
-  getAudio();
-  arpeggio(null,'down',2600);
-  setTimeout(()=>arpeggio(null,'up',2200),3000);
-});
-
-document.querySelectorAll('.restopts button').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.restopts button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    restSeconds=Number(btn.dataset.rest);
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+function tone(freq,start,dur,vol=.025){if(!state.cue)return;const c=getAudio(),o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.setValueAtTime(freq,start);g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(vol,start+.05);g.gain.exponentialRampToValueAtTime(.0001,start+dur);o.connect(g);g.connect(c.destination);o.start(start);o.stop(start+dur+.02)}
+function arp(dir,ms){if(!state.cue)return;const c=getAudio(),up=[261.6,329.6,392,523.2],down=[523.2,392,329.6,261.6],arr=dir==='up'?up:down,sec=Math.max(.4,ms/1000),gap=sec/arr.length;arr.forEach((f,i)=>tone(f,c.currentTime+i*gap,Math.min(.6,gap*.9)))}
+function cue(type,ms){if(type==='up'||type==='down')arp(type,ms)}
+function cycleSession(day){const base=JSON.parse(JSON.stringify(BASE_SESSIONS[day-1]));const c=state.cycle||1;if(c===1)return base;
+  // Cycle variations: small changes only. No sudden jumps in load.
+  const factor=Math.min(1.15,1+0.03*(c-1));
+  base.exercises.forEach((ex,idx)=>{
+    if(ex.kind==='time')ex.values=ex.values.map(v=>Math.round(v*factor/5)*5);
+    else ex.values=ex.values.map(v=>Math.max(6,Math.round(v*factor)));
+    if(c%2===0 && ex.pattern) ex.pattern=ex.pattern.map(p=>[p[0],p[1],Math.round(p[2]*1.06)]);
   });
-});
-
-function setCount(card){return card.querySelectorAll('.set').length}
-function doneSets(card){return [...card.querySelectorAll('.set')].filter(b=>b.classList.contains('done')).length}
-function nextSet(card){return [...card.querySelectorAll('.set')].find(b=>!b.classList.contains('done'))}
-function isDone(card){return doneSets(card)>=setCount(card)}
-function visibleCards(){return cards.filter(c=>!c.classList.contains('hidden'))}
-
-function updateProgress(){
-  const scope=mode==='solo'?visibleCards():cards;
-  const done=scope.filter(isDone).length;
-  document.getElementById('progressText').textContent=`${done} / ${scope.length} 운동`;
-  document.getElementById('progressBar').style.width=scope.length?`${done/scope.length*100}%`:'0%';
-  document.getElementById('progressLabel').textContent=mode==='solo'?'선택 운동 진행률':'전체 진행률';
+  if(c%2===0 && base.exercises.length>4){const first=base.exercises.shift();base.exercises.splice(2,0,first)}
+  base.copy=`${base.copy} · ${c}바퀴 변주`;
+  return base;
 }
-
-function stopCard(card,quiet=false){
-  if(card){
-    ['_timer','_clockTimer','_phaseTimer','_prepTimer','_rhythmTimer'].forEach(k=>{
-      if(card[k]){clearInterval(card[k]);clearTimeout(card[k]);card[k]=null}
-    });
-    stopCue(card);
-  }
-  if(card&&!quiet){
-    card.querySelector('.phase').textContent='정지';
-    card.querySelector('.sub').textContent='세트 시작을 누르면 다시 시작합니다.';
-  }
-  if(activeCard===card) activeCard=null;
-}
-
-function nextCourseCard(card){
-  const idx=cards.indexOf(card);
-  return cards.slice(idx+1).find(c=>!isDone(c))||null;
-}
-
-function beginRest(card,transition=false){
-  const rest=transition?35:restSeconds;
-  let left=rest;
-  const phase=card.querySelector('.phase');
-  const sub=card.querySelector('.sub');
-  const timer=card.querySelector('.timer');
-  const next=transition?nextCourseCard(card):null;
-
-  stopCue(card);
-  phase.textContent=transition?'다음 운동 준비':'휴식';
-  sub.textContent=`${left}초 남음`;
-  timer.textContent=fmt(left);
-
-  card._timer=setInterval(()=>{
-    left--;
-    timer.textContent=fmt(left);
-    sub.textContent=`${left}초 남음`;
-
-    if(left<=0){
-      clearInterval(card._timer);card._timer=null;
-      if(navigator.vibrate) navigator.vibrate([100,60,150]);
-      activeCard=null;
-      if(transition&&next){
-        phase.textContent='다음 운동';
-        sub.textContent=next.dataset.name;
-        setTimeout(()=>next.scrollIntoView({behavior:'smooth',block:'start'}),500);
-      }else{
-        phase.textContent='휴식 끝';
-        sub.textContent=isDone(card)?'이 운동 완료':'다음 세트를 시작하세요.';
-      }
-    }
-  },1000);
-}
-
-function finishSet(card){
-  stopCue(card);
-  const btn=nextSet(card);
-  if(btn) btn.classList.add('done');
-  updateProgress();
-  if(navigator.vibrate) navigator.vibrate([90,50,140]);
-
-  const phase=card.querySelector('.phase');
-  const sub=card.querySelector('.sub');
-  phase.textContent='세트 완료';
-
-  if(isDone(card)){
-    const next=mode==='course'?nextCourseCard(card):null;
-    if(next){
-      sub.textContent='35초 후 다음 운동';
-      setTimeout(()=>beginRest(card,true),650);
-    }else{
-      sub.textContent=mode==='course'?'전체 코스 완료':'선택 운동 완료';
-      activeCard=null;
-
-    }
-  }else{
-    sub.textContent=`${restSeconds}초 휴식 시작`;
-    setTimeout(()=>beginRest(card,false),650);
-  }
-}
-
-function selectedValue(card){
-  const active=card.querySelector('.opt.active');
-  return Number(active?active.dataset.value:card.dataset.default);
-}
-
-cards.forEach(card=>{
-  card._timer=null;card._clockTimer=null;card._phaseTimer=null;card._prepTimer=null;card._rhythmTimer=null;card._audioNodes=[];
-  card.querySelectorAll('.opt').forEach(opt=>{
-    opt.addEventListener('click',()=>{
-      card.querySelectorAll('.opt').forEach(o=>o.classList.remove('active'));
-      opt.classList.add('active');
-      if(card.dataset.kind==='time') card.querySelector('.timer').textContent=fmt(Number(opt.dataset.value));
-    });
-  });
-  card.querySelectorAll('.set').forEach(btn=>{
-    btn.addEventListener('click',()=>{btn.classList.toggle('done');updateProgress()});
-  });
-  card.querySelector('.stop').addEventListener('click',()=>stopCard(card));
-  card.querySelector('.start').addEventListener('click',()=>startCard(card));
-  const skip=card.querySelector('.skip');
-  if(skip){
-    skip.addEventListener('click',()=>{
-      if(activeCard===card) stopCard(card,true);
-      card.querySelectorAll('.set').forEach(s=>s.classList.add('done'));
-      card.querySelector('.phase').textContent='건너뜀';
-      card.querySelector('.sub').textContent='팔 컨디션에 맞춰 제외했습니다.';
-      updateProgress();
-    });
-  }
-});
-
-function startCard(card){
-  getAudio();
-  if(isDone(card)){
-    card.querySelector('.phase').textContent='완료';
-    card.querySelector('.sub').textContent='이미 모든 세트를 완료했습니다.';
-    return;
-  }
-  if(activeCard&&activeCard!==card) stopCard(activeCard,true);
-  stopCard(card,true);activeCard=card;
-
-  const phase=card.querySelector('.phase');
-  const sub=card.querySelector('.sub');
-  const timer=card.querySelector('.timer');
-  const target=selectedValue(card);
-  const kind=card.dataset.kind;
-  const totalSets=setCount(card);
-  const thisSet=doneSets(card)+1;
-  const prepSeconds=8;
-
-  phase.textContent='자세 준비';
-  sub.textContent=`${thisSet} / ${totalSets}세트 · ${prepSeconds}초 준비`;
-  timer.textContent=fmt(prepSeconds);
-
-  let prep=prepSeconds;
-  card._prepTimer=setInterval(()=>{
-    prep--;
-    timer.textContent=fmt(Math.max(prep,0));
-    sub.textContent=`${thisSet} / ${totalSets}세트 · ${Math.max(prep,0)}초 준비`;
-    if(prep===3){phase.textContent='3초 후 시작'}
-    if(prep===2){phase.textContent='2초 후 시작'}
-    if(prep===1){phase.textContent='1초 후 시작'}
-    if(prep<=0){
-      clearInterval(card._prepTimer);card._prepTimer=null;
-      if(kind==='time') runTimed(card,target);
-      else runReps(card,target);
-    }
-  },1000);
-}
-
-function runTimed(card,target){
-  let left=target;
-  const phase=card.querySelector('.phase');
-  const sub=card.querySelector('.sub');
-  const timer=card.querySelector('.timer');
-  phase.textContent='시작';sub.textContent=`${left}초 남음`;timer.textContent=fmt(left);
-
-  const id=card.dataset.id;
-  let dir='up';
-  if(id==='kneeup' || id==='heeltap'){
-    const halfMs=id==='kneeup'?500:800;
-    const tick=()=>{
-      if(activeCard!==card) return;
-      if(id==='kneeup'){
-        phase.textContent=dir==='up'?'무릎 올리기':'발 내리기';
-      }else{
-        phase.textContent=dir==='down'?'발 내리기':'무릎 되돌리기';
-      }
-      motionCue(card,dir,halfMs);
-      dir=dir==='up'?'down':'up';
-    };
-    tick();
-    card._rhythmTimer=setInterval(tick,halfMs);
-  }else{
-    phase.textContent='자세 유지';
-  }
-
-  card._timer=setInterval(()=>{
-    left--;timer.textContent=fmt(left);sub.textContent=`${Math.max(left,0)}초 남음`;
-    if(left<=0){
-      clearInterval(card._timer);card._timer=null;
-      if(card._rhythmTimer){clearInterval(card._rhythmTimer);card._rhythmTimer=null}
-      stopCue(card);
-      finishSet(card);
-    }
-  },1000);
-}
-
-function runReps(card,target){
-  const pattern=patterns[card.dataset.id];
-  let currentRep=1,step=0,elapsed=0;
-  const phase=card.querySelector('.phase');
-  const sub=card.querySelector('.sub');
-  const timer=card.querySelector('.timer');
-
-  function repSub(){
-    if(card.dataset.id==='lunge'){
-      const side=currentRep%2===1?'오른쪽':'왼쪽';
-      const each=Math.ceil(currentRep/2);
-      return `${side} ${each} / ${Math.ceil(target/2)}회`;
-    }
-    return `${currentRep} / ${target}회`;
-  }
-
-  function finishRep(){
-    if(currentRep>=target){
-      if(card._clockTimer){clearInterval(card._clockTimer);card._clockTimer=null}
-      card._phaseTimer=null;
-      finishSet(card);
-      return;
-    }
-    currentRep++;
-    step=0;
-    card._phaseTimer=setTimeout(runPhase,350);
-  }
-
-  function runPhase(){
-    if(activeCard!==card) return;
-    const cue=pattern[step];
-    phase.textContent=cue.label;
-    sub.textContent=repSub();
-    motionCue(card,cue.music,cue.ms);
-    card._phaseTimer=setTimeout(()=>{
-      step++;
-      if(step>=pattern.length) finishRep();
-      else runPhase();
-    },cue.ms);
-  }
-
-  elapsed=0;timer.textContent='00:00';
-  card._clockTimer=setInterval(()=>{elapsed++;timer.textContent=fmt(elapsed)},1000);
-  runPhase();
-}
-
-function showCourse(){
-  mode='course';selectedSoloId=null;
-  cards.forEach(c=>{c.classList.remove('hidden','focused')});
-  document.getElementById('modeTitle').textContent='ARM-SAFE FULL BODY';
-  document.getElementById('modeSub').textContent='위에서부터 순서대로';
-  updateProgress();
-}
-
-function showSolo(id){
-  if(activeCard) stopCard(activeCard,true);
-  mode='solo';selectedSoloId=id;
-  cards.forEach(c=>{
-    const on=c.dataset.id===id;
-    c.classList.toggle('hidden',!on);
-    c.classList.toggle('focused',on);
-  });
-  const card=cards.find(c=>c.dataset.id===id);
-  document.getElementById('modeTitle').textContent=`${card.dataset.name} ONLY`;
-  document.getElementById('modeSub').textContent='선택 운동만 진행';
-  updateProgress();
-  setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'start'}),80);
-}
-
-const pickGrid=document.getElementById('pickGrid');
-cards.forEach(card=>{
-  const b=document.createElement('button');
-  b.className='pick';
-  b.innerHTML=`${card.dataset.name}<small>${card.querySelector('.target').textContent}</small>`;
-  b.addEventListener('click',()=>showSolo(card.dataset.id));
-  pickGrid.appendChild(b);
-});
-
-document.getElementById('showAll').addEventListener('click',()=>{
-  showCourse();
-  document.getElementById('cards').scrollIntoView({behavior:'smooth',block:'start'});
-});
-
-document.getElementById('courseStart').addEventListener('click',()=>{
-  showCourse();getAudio();
-  const first=cards.find(c=>!isDone(c))||cards[0];
-  first.scrollIntoView({behavior:'smooth',block:'start'});
-});
-
-document.getElementById('resetAll').addEventListener('click',()=>{
-  if(activeCard) stopCard(activeCard,true);
-  cards.forEach(card=>{
-    card.querySelectorAll('.set').forEach(s=>s.classList.remove('done'));
-    card.querySelector('.phase').textContent='준비';
-    card.querySelector('.sub').textContent=card.dataset.kind==='time'?'시간을 선택하고 세트를 시작하세요.':'횟수를 선택하고 세트를 시작하세요.';
-    card.querySelector('.timer').textContent=card.dataset.kind==='time'?fmt(selectedValue(card)):'00:00';
-  });
-  showCourse();
-});
-
-setMusicButton();
-updateProgress();
+function renderStats(){const n=new Date(),prefix=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;monthCount.textContent=state.attendance.filter(d=>d.startsWith(prefix)).length+'회';totalCount.textContent=state.totalSessions+'회';const last=[...state.attendance].sort().pop();lastDate.textContent=last?`${Number(last.slice(5,7))}.${Number(last.slice(8,10))}`:'-'}
+function renderCalendar(){const n=new Date(),y=n.getFullYear(),m=n.getMonth();calMonth.textContent=`${y}.${String(m+1).padStart(2,'0')}`;calendar.innerHTML='';['일','월','화','수','목','금','토'].forEach(x=>{const d=document.createElement('div');d.className='calDow';d.textContent=x;calendar.appendChild(d)});const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),today=localDateStr();for(let i=0;i<first;i++){const d=document.createElement('div');d.className='calDay empty';calendar.appendChild(d)}for(let day=1;day<=days;day++){const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`,d=document.createElement('div');d.className='calDay';d.textContent=day;if(state.attendance.includes(ds))d.classList.add('done');if(ds===today)d.classList.add('today');calendar.appendChild(d)}}
+function renderNav(){sessionNav.innerHTML='';for(let i=1;i<=12;i++){const b=document.createElement('button');b.className='sessionBtn';b.textContent=`${i}일차`;if(i===currentDay)b.classList.add('active');if(state.cycle===1&&state.completedDays.includes(i))b.classList.add('done');b.onclick=()=>{stopActive();currentDay=i;render()};sessionNav.appendChild(b)}}
+function render(){const s=cycleSession(currentDay);dayTitle.textContent=s.title;dayCopy.textContent=s.copy;durationBadge.textContent=s.duration;sectionTitle.textContent=`${s.day}일차 운동`;cycleText.textContent=state.cycle>1?`${state.cycle}바퀴째`:'위에서부터 순서대로';cards.innerHTML='';s.exercises.forEach((ex,i)=>cards.appendChild(makeCard(ex,i)));renderNav();renderProgress();renderStats();renderCalendar();setCueButton()}
+function makeCard(ex,i){const a=document.createElement('article');a.className='card';a._ex=ex;a._timers=[];a.innerHTML=`<div class="head"><div class="num">${i+1}</div><div><div class="name">${ex.name}</div><div class="target">${ex.target}</div><div class="tags">${ex.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div></div><div class="desc">${ex.desc}</div><div class="control"><div class="guide"><div class="phase">준비</div><div class="sub">시작을 누르면 6초 준비 후 시작합니다.</div></div><div class="options">${ex.values.map((v,j)=>`<button class="opt ${j===0?'active':''}" data-v="${v}">${ex.kind==='time'?v+'초':v+'회'}</button>`).join('')}</div><div class="controls"><button class="btn primary start">세트 시작</button><button class="btn stop">정지</button><span class="timer">${ex.kind==='time'?fmt(ex.values[0]):'00:00'}</span></div><div class="sets" style="--count:${ex.sets}">${Array.from({length:ex.sets},(_,k)=>`<button class="set">${k+1}세트</button>`).join('')}</div></div>`;a.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{a.querySelectorAll('.opt').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(ex.kind==='time')a.querySelector('.timer').textContent=fmt(Number(b.dataset.v))});a.querySelector('.start').onclick=()=>startCard(a);a.querySelector('.stop').onclick=()=>stopCard(a,false);a.querySelectorAll('.set').forEach(b=>b.onclick=()=>{b.classList.toggle('done');renderProgress()});return a}
+function clearTimers(a){(a._timers||[]).forEach(x=>{clearTimeout(x);clearInterval(x)});a._timers=[]}
+function stopCard(a,quiet=true){if(!a)return;clearTimers(a);if(!quiet){a.querySelector('.phase').textContent='정지';a.querySelector('.sub').textContent='다시 시작할 수 있습니다.'}if(activeCard===a)activeCard=null}
+function stopActive(){if(activeCard)stopCard(activeCard,true)}
+function valueOf(a){return Number(a.querySelector('.opt.active').dataset.v)}
+function startCard(a){getAudio();stopActive();activeCard=a;clearTimers(a);const ex=a._ex,phase=a.querySelector('.phase'),sub=a.querySelector('.sub'),timer=a.querySelector('.timer');let prep=6;phase.textContent='자세 준비';sub.textContent='6초';timer.textContent=fmt(prep);const it=setInterval(()=>{prep--;timer.textContent=fmt(Math.max(prep,0));sub.textContent=prep>0?prep+'초':'시작';if(prep<=0){clearInterval(it);a._timers=a._timers.filter(x=>x!==it);ex.kind==='time'?runTime(a):runReps(a)}},1000);a._timers.push(it)}
+function finishSet(a){clearTimers(a);activeCard=null;const sets=[...a.querySelectorAll('.set')],next=sets.find(x=>!x.classList.contains('done'));if(next)next.classList.add('done');a.querySelector('.phase').textContent='세트 완료';a.querySelector('.sub').textContent=sets.every(x=>x.classList.contains('done'))?'이 운동 완료':'30초 쉬고 다음 세트';renderProgress()}
+function runTime(a){const ex=a._ex,target=valueOf(a),phase=a.querySelector('.phase'),sub=a.querySelector('.sub'),timer=a.querySelector('.timer');let left=target,dir='up';phase.textContent='시작';sub.textContent=left+'초';timer.textContent=fmt(left);if(ex.rhythm){const tick=()=>{phase.textContent=dir==='up'?'UP':'DOWN';cue(dir,Math.min(700,ex.rhythm));dir=dir==='up'?'down':'up'};tick();const r=setInterval(tick,ex.rhythm);a._timers.push(r)}else phase.textContent='유지';const it=setInterval(()=>{left--;timer.textContent=fmt(Math.max(left,0));sub.textContent=Math.max(left,0)+'초';if(left<=0)finishSet(a)},1000);a._timers.push(it)}
+function runReps(a){const ex=a._ex,target=valueOf(a),phase=a.querySelector('.phase'),sub=a.querySelector('.sub'),timer=a.querySelector('.timer');let rep=1,step=0,elapsed=0;const clock=setInterval(()=>{elapsed++;timer.textContent=fmt(elapsed)},1000);a._timers.push(clock);function next(){if(activeCard!==a)return;const p=ex.pattern[step];phase.textContent=p[0];sub.textContent=`${rep} / ${target}회`;cue(p[1],p[2]);const t=setTimeout(()=>{step++;if(step>=ex.pattern.length){if(rep>=target){finishSet(a);return}rep++;step=0;const gap=setTimeout(next,350);a._timers.push(gap)}else next()},p[2]);a._timers.push(t)}next()}
+function renderProgress(){const list=[...document.querySelectorAll('.card')],done=list.filter(a=>[...a.querySelectorAll('.set')].every(x=>x.classList.contains('done'))).length;progressText.textContent=`${done} / ${list.length}`;progressBar.style.width=list.length?`${done/list.length*100}%`:'0%'}
+function setCueButton(){cueToggle.textContent=state.cue?'UP / DOWN ON':'UP / DOWN OFF'}
+cueToggle.onclick=()=>{state.cue=!state.cue;save();setCueButton()};
+cueTest.onclick=()=>{getAudio();arp('down',2200);setTimeout(()=>arp('up',1800),2600)};
+startSession.onclick=()=>{getAudio();cards.scrollIntoView({behavior:'smooth'});setTimeout(()=>{const c=document.querySelector('.card');if(c)startCard(c)},450)};
+completeSession.onclick=()=>{stopActive();const today=localDateStr();if(!state.attendance.includes(today))state.attendance.push(today);state.totalSessions++;if(state.cycle===1&&!state.completedDays.includes(currentDay))state.completedDays.push(currentDay);if(currentDay>=12){state.nextDay=1;state.cycle++}else state.nextDay=currentDay+1;save();currentDay=state.nextDay;render();window.scrollTo({top:0,behavior:'smooth'})};
+render();
 </script>
 </body>
 </html>
